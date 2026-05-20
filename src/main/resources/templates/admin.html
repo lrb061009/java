@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理后台 - 食堂订餐系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 1.3rem; }
+        .header .user-info { font-size: 0.9rem; opacity: 0.9; display: flex; align-items: center; gap: 1rem; }
+        .header nav a { color: rgba(255,255,255,0.8); text-decoration: none; margin-left: 1.5rem; padding: 0.4rem 0.8rem; border-radius: 6px; transition: background 0.3s; font-size: 0.95rem; }
+        .header nav a:hover, .header nav a.active { background: rgba(255,255,255,0.2); color: white; }
+        .content { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+
+        .dataflow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .dataflow-section { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .dataflow-section h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .dataflow-section .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 1rem; }
+        .dataflow-section.send { border-left: 4px solid #7c3aed; }
+        .dataflow-section.receive { border-left: 4px solid #059669; }
+        .dataflow-section.send h3 { color: #6d28d9; }
+        .dataflow-section.receive h3 { color: #047857; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.8rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; border-radius: 10px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+        .stat-card .value { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; }
+        .stat-card .label { color: #888; font-size: 0.8rem; margin-top: 0.2rem; }
+        .stat-card.revenue .value { color: #059669; }
+        .stat-card.pending .value { color: #d97706; }
+
+        .tabs { display: flex; gap: 0; margin-bottom: 0; }
+        .tabs button { padding: 0.6rem 1.5rem; border: none; background: #f3f4f6; color: #666; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .tabs button:first-child { border-radius: 8px 0 0 0; }
+        .tabs button:last-child { border-radius: 0 8px 0 0; }
+        .tabs button:hover { color: #1a1a2e; background: #e5e7eb; }
+        .tabs button.active { color: white; background: #1a1a2e; font-weight: 600; }
+
+        .tab-panel { display: none; background: white; border-radius: 0 0 12px 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tab-panel.active { display: block; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { text-align: left; padding: 0.7rem 0.5rem; background: #f8f9fa; color: #555; font-weight: 600; border-bottom: 2px solid #eee; white-space: nowrap; }
+        td { padding: 0.6rem 0.5rem; border-bottom: 1px solid #f0f0f0; color: #333; }
+        tr:hover td { background: #fafbfc; }
+
+        .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+        .badge-warn { background: #fef3c7; color: #d97706; }
+        .badge-info { background: #dbeafe; color: #2563eb; }
+        .badge-success { background: #d1fae5; color: #059669; }
+        .badge-danger { background: #fee2e2; color: #dc2626; }
+        .badge-purple { background: #ede9fe; color: #7c3aed; }
+        .badge-paid { background: #d1fae5; color: #059669; }
+        .badge-unpaid { background: #fef3c7; color: #d97706; }
+
+        .btn { padding: 0.3rem 0.7rem; border-radius: 5px; font-size: 0.8rem; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 0.2rem 0.5rem; font-size: 0.75rem; }
+
+        .section-title { font-size: 1.1rem; color: #333; margin-bottom: 1rem; font-weight: 600; }
+        select, input[type="text"] { padding: 0.4rem 0.6rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.85rem; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal { background: white; border-radius: 12px; padding: 1.5rem; width: 450px; max-width: 90%; }
+        .modal h3 { margin-bottom: 1rem; }
+        .modal label { display: block; margin-bottom: 0.3rem; color: #555; font-size: 0.9rem; }
+        .modal input, .modal select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .modal .btn-row { display: flex; gap: 0.5rem; }
+        .modal .btn-row button { flex: 1; padding: 0.5rem; border-radius: 6px; border: none; cursor: pointer; font-size: 0.95rem; }
+        .empty { text-align: center; padding: 2rem; color: #999; }
+        @media (max-width: 900px) { .dataflow-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h2>管理后台 - 食堂订餐系统</h2>
+    <div class="user-info">
+        <span>管理员：<span th:text="${user.realName}">管理员</span></span>
+    </div>
+    <nav>
+        <a th:href="@{/admin}" class="active">仪表盘</a>
+        <a th:href="@{/home}">用户首页</a>
+        <a th:href="@{/logout}">退出</a>
+    </nav>
+</div>
+<div class="content">
+    <!-- Data Flow Overview -->
+    <div class="dataflow-grid">
+        <div class="dataflow-section send">
+            <h3>管理员向系统发送</h3>
+            <p class="subtitle">管理员主动执行管理操作</p>
+            <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+                <div style="flex:1; min-width:100px; background:#f5f3ff; border-radius:8px; padding:0.8rem; text-align:center;">
+                    <div style="font-weight:700; color:#6d28d9;">用户管理</div>
+                    <div style="color:#7c3aed; font-size:0.8rem;">角色分配、食堂绑定</div>
+                </div>
+                <div style="flex:1; min-width:100px; background:#f5f3ff; border-radius:8px; padding:0.8rem; text-align:center;">
+                    <div style="font-weight:700; color:#6d28d9;">评价审核</div>
+                    <div style="color:#7c3aed; font-size:0.8rem;">通过/驳回用户评价</div>
+                </div>
+                <div style="flex:1; min-width:100px; background:#f5f3ff; border-radius:8px; padding:0.8rem; text-align:center;">
+                    <div style="font-weight:700; color:#6d28d9;">订单管理</div>
+                    <div style="color:#7c3aed; font-size:0.8rem;">状态变更、取消</div>
+                </div>
+            </div>
+        </div>
+        <div class="dataflow-section receive">
+            <h3>系统向管理员返回</h3>
+            <p class="subtitle">系统自动汇总运营数据</p>
+            <div style="display:flex; gap:0.8rem; flex-wrap:wrap;">
+                <div style="flex:1; min-width:100px; background:#ecfdf5; border-radius:8px; padding:0.8rem; text-align:center;">
+                    <div style="font-weight:700; color:#047857;">运营数据</div>
+                    <div style="color:#059669; font-size:0.8rem;">用户、订单、营收统计</div>
+                </div>
+                <div style="flex:1; min-width:100px; background:#ecfdf5; border-radius:8px; padding:0.8rem; text-align:center;">
+                    <div style="font-weight:700; color:#047857;">订单列表</div>
+                    <div style="color:#059669; font-size:0.8rem;">全部订单及支付记录</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card"><div class="value" th:text="${stats.totalUsers}">0</div><div class="label">总用户数</div></div>
+        <div class="stat-card"><div class="value" th:text="${stats.userCount}">0</div><div class="label">学生用户</div></div>
+        <div class="stat-card"><div class="value" th:text="${stats.merchantCount}">0</div><div class="label">商家数</div></div>
+        <div class="stat-card pending"><div class="value" th:text="${stats.pendingOrders}">0</div><div class="label">待处理订单</div></div>
+        <div class="stat-card"><div class="value" th:text="${stats.completedOrders}">0</div><div class="label">已完成订单</div></div>
+        <div class="stat-card"><div class="value" th:text="${stats.todayOrders}">0</div><div class="label">今日订单</div></div>
+        <div class="stat-card revenue"><div class="value" th:text="${stats.totalRevenue}">0</div><div class="label">总营收 (¥)</div></div>
+        <div class="stat-card pending"><div class="value" th:text="${stats.pendingReviews}">0</div><div class="label">待审核评价</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('orders')">订单管理</button>
+        <button class="tab-btn" onclick="switchTab('payments')">支付记录</button>
+        <button class="tab-btn" onclick="switchTab('users')">用户管理</button>
+        <button class="tab-btn" onclick="switchTab('reviews')">评价审核</button>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="tab-orders" class="tab-panel active">
+        <div class="section-title">全部订单 - 系统返回的订单列表</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">管理员可查看所有订单并进行状态管理（确认、完成、取消）。</p>
+        <div th:if="${#lists.isEmpty(orders)}" class="empty"><p>暂无订单</p></div>
+        <div style="overflow-x:auto;" th:if="${!#lists.isEmpty(orders)}">
+            <table>
+                <thead>
+                <tr><th>订单ID</th><th>用户</th><th>菜品明细</th><th>金额</th><th>支付</th><th>状态</th><th>取餐码</th><th>时间</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}">1</td>
+                    <td th:text="${order.user.realName}">用户</td>
+                    <td>
+                        <span th:each="detail, iter : ${order.orderDetails}" th:text="${detail.menu.name} + ' x' + detail.quantity + (iter.last ? '' : ', ')"></span>
+                    </td>
+                    <td>¥<span th:text="${order.totalPrice}">0.00</span></td>
+                    <td>
+                        <span class="badge" th:classappend="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? 'badge-paid' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? 'badge-danger' : 'badge-unpaid')"
+                              th:text="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? '已支付' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? '已退款' : '未支付')"></span>
+                    </td>
+                    <td>
+                        <span class="badge" th:classappend="${order.status == 'PENDING'} ? 'badge-warn' : (${order.status == 'CONFIRMED'} ? 'badge-info' : (${order.status == 'COMPLETED'} ? 'badge-success' : 'badge-danger'))"
+                              th:text="${order.status == 'PENDING'} ? '待处理' : (${order.status == 'CONFIRMED'} ? '已确认' : (${order.status == 'COMPLETED'} ? '已完成' : '已取消'))"></span>
+                    </td>
+                    <td th:text="${order.takeCode}">-</td>
+                    <td th:text="${#temporals.format(order.orderTime, 'MM-dd HH:mm')}">-</td>
+                    <td>
+                        <button th:if="${order.status == 'PENDING'}" class="btn btn-success btn-sm" th:attr="onclick='updateStatus(' + ${order.id} + ',\"CONFIRMED\")'">确认</button>
+                        <button th:if="${order.status == 'CONFIRMED'}" class="btn btn-success btn-sm" th:attr="onclick='updateStatus(' + ${order.id} + ',\"COMPLETED\")'">完成</button>
+                        <button th:if="${order.status != 'COMPLETED' && order.status != 'CANCELLED'}" class="btn btn-danger btn-sm" th:attr="onclick='updateStatus(' + ${order.id} + ',\"CANCELLED\")'">取消</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payments Tab -->
+    <div id="tab-payments" class="tab-panel">
+        <div class="section-title">全部支付记录</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">系统记录的所有支付流水，用于财务对账。</p>
+        <div th:if="${#lists.isEmpty(payments)}" class="empty"><p>暂无支付记录</p></div>
+        <div style="overflow-x:auto;" th:if="${!#lists.isEmpty(payments)}">
+            <table>
+                <thead>
+                <tr><th>支付ID</th><th>订单ID</th><th>支付方式</th><th>金额</th><th>状态</th><th>支付时间</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="payment : ${payments}">
+                    <td th:text="${payment.id}">1</td>
+                    <td th:text="${payment.order.id}">1</td>
+                    <td th:text="${payment.paymentMethod}">WECHAT</td>
+                    <td>¥<span th:text="${payment.order.totalPrice}">0.00</span></td>
+                    <td>
+                        <span class="badge" th:classappend="${payment.paymentStatus == 'PAID'} ? 'badge-success' : (${payment.paymentStatus == 'REFUNDED'} ? 'badge-danger' : 'badge-warn')"
+                              th:text="${payment.paymentStatus == 'PAID'} ? '已支付' : (${payment.paymentStatus == 'REFUNDED'} ? '已退款' : '未支付')"></span>
+                    </td>
+                    <td th:text="${#temporals.format(payment.paymentTime, 'MM-dd HH:mm')}">-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="tab-users" class="tab-panel">
+        <div class="section-title">用户管理 - 管理员管理系统用户</div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">管理所有用户账号，包括角色分配（学生/商家/管理员）和食堂绑定。</p>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                <tr><th>ID</th><th>用户名</th><th>姓名</th><th>角色</th><th>部门</th><th>余额</th><th>管理食堂</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.id}">1</td>
+                    <td th:text="${u.username}">user</td>
+                    <td th:text="${u.realName}">姓名</td>
+                    <td>
+                        <span class="badge" th:classappend="${u.role == 'ADMIN'} ? 'badge-purple' : (${u.role == 'MERCHANT'} ? 'badge-info' : 'badge-success')"
+                              th:text="${u.role == 'ADMIN'} ? '管理员' : (${u.role == 'MERCHANT'} ? '商家' : '用户')"></span>
+                    </td>
+                    <td th:text="${u.department}">-</td>
+                    <td>¥<span th:text="${u.balance}">0.00</span></td>
+                    <td>
+                        <span th:each="c : ${canteens}" th:if="${c.id == u.managedCanteenId}" th:text="${c.name}"></span>
+                        <span th:if="${u.managedCanteenId == null}">-</span>
+                    </td>
+                    <td><button class="btn btn-sm" style="background:#667eea;color:white;" th:attr="onclick='editUser(' + ${u.id} + ',\"' + ${u.realName} + '\",\"' + ${u.role} + '\",\"' + ${u.phone != null ? u.phone : ''} + '\",\"' + ${u.department != null ? u.department : ''} + '\",' + ${u.managedCanteenId != null ? u.managedCanteenId : 0} + ')'">编辑</button></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reviews Tab -->
+    <div id="tab-reviews" class="tab-panel">
+        <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>评价审核 - 管理员审核用户评价</span>
+            <span style="color:#d97706; font-size:0.9rem;" th:text="'待审核：' + ${#lists.size(pendingReviews)} + ' 条'">待审核：0 条</span>
+        </div>
+        <p style="color:#888; font-size:0.85rem; margin-bottom:1rem;">审核用户提交的评价，通过后将在菜品详情页展示。</p>
+        <div th:if="${#lists.isEmpty(reviews)}" class="empty"><p>暂无评价</p></div>
+        <div th:if="${!#lists.isEmpty(reviews)}">
+            <table>
+                <thead>
+                <tr><th>ID</th><th>用户</th><th>菜品</th><th>评分</th><th>内容</th><th>审核状态</th><th>时间</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="review : ${reviews}">
+                    <td th:text="${review.id}">1</td>
+                    <td th:text="${review.user.realName}">用户</td>
+                    <td th:text="${review.menu.name}">菜品</td>
+                    <td><span th:each="i : ${#numbers.sequence(1,5)}" th:text="${i <= review.rating} ? '★' : '☆'" style="color:#f59e0b;"></span></td>
+                    <td th:text="${review.comment}" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">内容</td>
+                    <td>
+                        <span class="badge" th:classappend="${review.checkStatus == 'PENDING'} ? 'badge-warn' : (${review.checkStatus == 'APPROVED'} ? 'badge-success' : 'badge-danger')"
+                              th:text="${review.checkStatus == 'PENDING'} ? '待审核' : (${review.checkStatus == 'APPROVED'} ? '已通过' : '已驳回')"></span>
+                    </td>
+                    <td th:text="${#temporals.format(review.createTime, 'MM-dd HH:mm')}">-</td>
+                    <td>
+                        <button th:if="${review.checkStatus == 'PENDING'}" class="btn btn-success btn-sm" th:attr="onclick='approveReview(' + ${review.id} + ')'">通过</button>
+                        <button th:if="${review.checkStatus == 'PENDING'}" class="btn btn-danger btn-sm" th:attr="onclick='rejectReview(' + ${review.id} + ')'">驳回</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editUserModal" class="modal-overlay">
+    <div class="modal">
+        <h3>编辑用户</h3>
+        <input type="hidden" id="editUserId">
+        <label>真实姓名</label>
+        <input type="text" id="editRealName">
+        <label>角色</label>
+        <select id="editRole">
+            <option value="USER">学生用户</option>
+            <option value="MERCHANT">食堂商家</option>
+            <option value="ADMIN">管理员</option>
+        </select>
+        <label>管理食堂</label>
+        <select id="editCanteenId">
+            <option value="0">无</option>
+            <option th:each="c : ${canteens}" th:value="${c.id}" th:text="${c.name}">食堂</option>
+        </select>
+        <label>手机号</label>
+        <input type="text" id="editPhone">
+        <label>部门</label>
+        <input type="text" id="editDepartment">
+        <div class="btn-row">
+            <button onclick="saveUser()" style="background:#667eea;color:white;">保存</button>
+            <button onclick="closeEditUserModal()" style="background:#eee;color:#666;">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function updateStatus(orderId, status) {
+    var msg = status === 'CANCELLED' ? '确定取消此订单？' : '确定更新订单状态为"' + (status === 'CONFIRMED' ? '已确认' : '已完成') + '"？';
+    if (!confirm(msg)) return;
+    fetch('/api/order/' + orderId + '/status', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: status})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) { alert('操作失败：' + data.error); return; }
+        location.reload();
+    });
+}
+
+function approveReview(id) {
+    if (!confirm('确定通过此评价？')) return;
+    fetch('/api/review/' + id + '/approve', {method: 'PUT'})
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert(data.error); return; }
+            location.reload();
+        });
+}
+
+function rejectReview(id) {
+    if (!confirm('确定驳回此评价？')) return;
+    fetch('/api/review/' + id + '/reject', {method: 'PUT'})
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert(data.error); return; }
+            location.reload();
+        });
+}
+
+function editUser(id, realName, role, phone, dept, canteenId) {
+    document.getElementById('editUserId').value = id;
+    document.getElementById('editRealName').value = realName;
+    document.getElementById('editRole').value = role;
+    document.getElementById('editPhone').value = phone;
+    document.getElementById('editDepartment').value = dept;
+    document.getElementById('editCanteenId').value = canteenId || '0';
+    document.getElementById('editUserModal').style.display = 'flex';
+}
+
+function closeEditUserModal() {
+    document.getElementById('editUserModal').style.display = 'none';
+}
+
+function saveUser() {
+    var id = document.getElementById('editUserId').value;
+    var canteenId = document.getElementById('editCanteenId').value;
+    var body = {
+        realName: document.getElementById('editRealName').value,
+        role: document.getElementById('editRole').value,
+        phone: document.getElementById('editPhone').value,
+        department: document.getElementById('editDepartment').value,
+        managedCanteenId: canteenId !== '0' ? parseInt(canteenId) : null
+    };
+    fetch('/api/admin/user/' + id, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) { alert('保存失败：' + data.error); return; }
+        closeEditUserModal();
+        location.reload();
+    });
+}
+</script>
+</body>
+</html>

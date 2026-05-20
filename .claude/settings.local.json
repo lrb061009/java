@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(mysql *)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:8080/\" -UseBasicParsing | Select-Object StatusCode, StatusDescription, @{N=\"Length\";E={$_.RawContent.Length}})",
+      "PowerShell($response = Invoke-WebRequest -Uri \"http://localhost:8080/\" -UseBasicParsing; Write-Host \"Status: $\\($response.StatusCode\\)\"; Write-Host \"Content length: $\\($response.Content.Length\\)\")"
+    ]
+  }
+}

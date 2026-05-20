@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - 食堂订餐系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 1.3rem; }
+        .header nav a { color: white; text-decoration: none; margin-left: 1.5rem; padding: 0.4rem 0.8rem; border-radius: 6px; transition: background 0.3s; font-size: 0.95rem; }
+        .header nav a:hover, .header nav a.active { background: rgba(255,255,255,0.2); }
+        .header .user-info { font-size: 0.9rem; opacity: 0.9; display: flex; align-items: center; gap: 1rem; }
+        .header .balance { background: rgba(255,255,255,0.25); padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 600; }
+        .header .btn-recharge { background: white; color: #667eea; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.8rem; border: none; cursor: pointer; font-weight: 600; }
+        .header .btn-recharge:hover { background: #f0f0f0; }
+        .content { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+        .module-header { background: white; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .module-header h3 { color: #333; margin-bottom: 0.3rem; }
+        .module-header .subtitle { color: #888; font-size: 0.9rem; }
+
+        .flow-steps { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .flow-step { flex: 1; background: white; border-radius: 10px; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative; }
+        .flow-step .step-num { display: inline-block; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; background: #667eea; color: white; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.4rem; }
+        .flow-step .step-title { font-weight: 600; color: #333; margin-bottom: 0.2rem; }
+        .flow-step .step-desc { color: #888; font-size: 0.8rem; }
+        .flow-step .step-link { color: #667eea; font-size: 0.8rem; text-decoration: none; }
+        .flow-step .step-link:hover { text-decoration: underline; }
+        .flow-arrow-col { display: flex; align-items: center; color: #ccc; font-size: 1.2rem; }
+
+        .canteen-filter { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .canteen-filter a { padding: 0.4rem 1rem; border-radius: 20px; text-decoration: none; font-size: 0.9rem; background: white; color: #666; border: 1px solid #ddd; transition: all 0.2s; }
+        .canteen-filter a.active, .canteen-filter a:hover { background: #667eea; color: white; border-color: #667eea; }
+
+        .menu-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+        .menu-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+        .menu-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .menu-card .meal-type { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .meal-type-breakfast { background: #fef3c7; color: #d97706; }
+        .meal-type-lunch { background: #dbeafe; color: #2563eb; }
+        .meal-type-dinner { background: #ede9fe; color: #7c3aed; }
+        .menu-card h3 { font-size: 1.2rem; margin-bottom: 0.3rem; color: #333; }
+        .menu-card .canteen { color: #888; font-size: 0.85rem; margin-bottom: 0.3rem; }
+        .menu-card .price { color: #e74c3c; font-size: 1.3rem; font-weight: 700; margin: 0.5rem 0; }
+        .menu-card .stock { color: #999; font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .menu-card .desc { color: #666; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border-radius: 6px; font-size: 0.9rem; text-decoration: none; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd6; }
+        .btn-outline { border: 1px solid #667eea; color: #667eea; }
+        .btn-outline:hover { background: #667eea; color: white; }
+        .menu-card .actions { display: flex; gap: 0.5rem; }
+        .empty { text-align: center; padding: 3rem; color: #999; }
+        .empty p { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h2>食堂订餐系统</h2>
+    <div class="user-info">
+        <span>欢迎，<span th:text="${user.realName}">用户</span></span>
+        <span class="balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
+        <button class="btn-recharge" onclick="showRechargeModal()">充值</button>
+    </div>
+    <nav>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.3);">管理后台</a>
+        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" style="background:rgba(255,255,255,0.3);">商家后台</a>
+        <a th:href="@{/home}" class="active">今日菜单</a>
+        <a th:href="@{/my-orders}">我的订单</a>
+        <a th:href="@{/my-reviews}">我的评价</a>
+        <a th:href="@{/logout}">退出</a>
+    </nav>
+</div>
+<div class="content">
+    <div class="module-header">
+        <h3>订单处理 - <span th:text="${today}">2024-01-01</span></h3>
+        <p class="subtitle">浏览菜品、提交订单、查询订单 — 一站式订餐服务</p>
+    </div>
+
+    <!-- Order Flow Steps -->
+    <div class="flow-steps">
+        <div class="flow-step" style="border-top:3px solid #667eea;">
+            <div class="step-num">1</div>
+            <div class="step-title">浏览菜品</div>
+            <div class="step-desc">查看今日菜单和菜品详情</div>
+        </div>
+        <div class="flow-arrow-col">→</div>
+        <div class="flow-step" style="border-top:3px solid #f59e0b;">
+            <div class="step-num" style="background:#f59e0b;">2</div>
+            <div class="step-title">提交订单</div>
+            <div class="step-desc">选择菜品下单，余额自动扣款</div>
+        </div>
+        <div class="flow-arrow-col">→</div>
+        <div class="flow-step" style="border-top:3px solid #10b981;">
+            <div class="step-num" style="background:#10b981;">3</div>
+            <div class="step-title">查询订单</div>
+            <div class="step-desc">查看订单状态和取餐码</div>
+            <a class="step-link" th:href="@{/my-orders}">查看我的订单 →</a>
+        </div>
+    </div>
+
+    <div class="canteen-filter">
+        <a th:href="@{/home}" th:classappend="${canteenId == null} ? 'active'">全部食堂</a>
+        <a th:each="c : ${canteens}"
+           th:href="@{/home(canteenId=${c.id})}"
+           th:text="${c.name}"
+           th:classappend="${canteenId != null && canteenId == c.id} ? 'active'">食堂名称</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(todayMenus)}" class="empty">
+        <p>今日暂无菜品</p>
+    </div>
+
+    <div class="menu-list">
+        <div class="menu-card" th:each="menu : ${todayMenus}">
+            <span class="meal-type"
+                  th:classappend="${menu.mealType == 'BREAKFAST'} ? 'meal-type-breakfast' : (${menu.mealType == 'LUNCH'} ? 'meal-type-lunch' : 'meal-type-dinner')"
+                  th:text="${menu.mealType == 'BREAKFAST'} ? '早餐' : (${menu.mealType == 'LUNCH'} ? '午餐' : '晚餐')">餐别</span>
+            <h3 th:text="${menu.name}">菜品名</h3>
+            <div class="canteen" th:if="${menu.canteen != null}" th:text="${menu.canteen.name}">食堂</div>
+            <p class="price">¥<span th:text="${menu.price}">0.00</span></p>
+            <p class="stock">库存：<span th:text="${menu.stock}">0</span> 份</p>
+            <p class="desc" th:text="${menu.description}">描述</p>
+            <div class="actions">
+                <a th:href="@{/menu/detail/{id}(id=${menu.id})}" class="btn btn-outline">查看详情</a>
+                <button class="btn btn-primary" onclick="orderNow(this)" th:attr="data-menu-id=${menu.id},data-menu-name=${menu.name}">快速下单</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="rechargeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1001; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:2rem; width:380px; max-width:90%;">
+        <h3 style="margin-bottom:1rem;">账户充值</h3>
+        <p style="color:#666; margin-bottom:0.5rem;">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
+        <label style="display:block; margin-bottom:0.4rem; color:#555;">充值金额</label>
+        <input type="number" id="rechargeAmount" value="100" min="1" step="0.01" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1.5rem; font-size:1rem;">
+        <div style="display:flex; gap:0.5rem;">
+            <button onclick="submitRecharge()" style="flex:1; padding:0.6rem; background:#10b981; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">确认充值</button>
+            <button onclick="closeRechargeModal()" style="flex:1; padding:0.6rem; background:#eee; color:#666; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">取消</button>
+        </div>
+    </div>
+</div>
+
+<div id="orderModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:2rem; width:380px; max-width:90%;">
+        <h3 style="margin-bottom:1rem;">下单 - <span id="modalMenuName"></span></h3>
+        <label style="display:block; margin-bottom:0.4rem; color:#555;">数量</label>
+        <input type="number" id="orderQuantity" value="1" min="1" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1rem; font-size:1rem;">
+        <label style="display:block; margin-bottom:0.4rem; color:#555;">备注</label>
+        <input type="text" id="orderRemark" placeholder="可选" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1.5rem; font-size:1rem;">
+        <div style="display:flex; gap:0.5rem;">
+            <button onclick="submitOrder()" style="flex:1; padding:0.6rem; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">确认下单</button>
+            <button onclick="closeModal()" style="flex:1; padding:0.6rem; background:#eee; color:#666; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+var currentMenuId = null;
+function orderNow(btn) {
+    currentMenuId = btn.getAttribute('data-menu-id');
+    document.getElementById('modalMenuName').textContent = btn.getAttribute('data-menu-name');
+    document.getElementById('orderModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('orderModal').style.display = 'none';
+}
+function showRechargeModal() {
+    document.getElementById('rechargeModal').style.display = 'flex';
+}
+function closeRechargeModal() {
+    document.getElementById('rechargeModal').style.display = 'none';
+}
+function submitRecharge() {
+    var amount = document.getElementById('rechargeAmount').value;
+    if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的充值金额'); return; }
+    var userId = [[${user.id}]];
+    fetch('/api/user/charge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userId.toString(), amount: amount })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) { alert('充值失败：' + data.error); return; }
+        alert('充值成功！当前余额：¥' + data.balance);
+        closeRechargeModal();
+        location.reload();
+    });
+}
+function submitOrder() {
+    var qty = parseInt(document.getElementById('orderQuantity').value);
+    var remark = document.getElementById('orderRemark').value;
+    var userId = [[${user.id}]];
+    fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userId, items: [{ menuId: parseInt(currentMenuId), quantity: qty }], remark: remark })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) { alert('下单失败：' + data.error); return; }
+        alert('下单成功！');
+        closeModal();
+        location.reload();
+    });
+}
+</script>
+</body>
+</html>
