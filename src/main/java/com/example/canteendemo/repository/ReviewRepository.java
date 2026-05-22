@@ -15,9 +15,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Optional<Review> findByOrderId(Long orderId);
 
-    boolean existsByOrderId(Long orderId);
+    boolean existsByOrderIdAndMenuId(Long orderId, Long menuId);
 
     List<Review> findByCheckStatus(String checkStatus);
+
+    @org.springframework.data.jpa.repository.Query("SELECT r FROM Review r JOIN r.menu m WHERE m.canteen.id = :canteenId ORDER BY r.createTime DESC")
+    List<Review> findByMenuCanteenIdOrderByCreateTimeDesc(@org.springframework.data.repository.query.Param("canteenId") Long canteenId);
 
     List<Review> findAllByOrderByCreateTimeDesc();
 

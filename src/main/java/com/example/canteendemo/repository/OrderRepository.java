@@ -30,4 +30,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     java.math.BigDecimal sumCompletedTotalPrice();
 
     long countByOrderTimeBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId AND o.status = 'COMPLETED'")
+    java.math.BigDecimal sumCompletedTotalPriceByCanteenId(@Param("canteenId") Long canteenId);
+
+    @Query("SELECT COUNT(DISTINCT o) FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId")
+    long countByCanteenId(@Param("canteenId") Long canteenId);
+
+    @Query("SELECT COUNT(DISTINCT o) FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId AND o.status = :status")
+    long countByCanteenIdAndStatus(@Param("canteenId") Long canteenId, @Param("status") String status);
 }

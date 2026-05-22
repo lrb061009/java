@@ -58,4 +58,21 @@ public class StatisticsService {
 
         return stats;
     }
+
+    public Map<String, Object> getMerchantStats(Long canteenId) {
+        Map<String, Object> stats = new HashMap<>();
+
+        BigDecimal totalRevenue = orderRepository.sumCompletedTotalPriceByCanteenId(canteenId);
+
+        stats.put("totalOrders", orderRepository.countByCanteenId(canteenId));
+        stats.put("pendingOrders", orderRepository.countByCanteenIdAndStatus(canteenId, "PENDING"));
+        stats.put("confirmedOrders", orderRepository.countByCanteenIdAndStatus(canteenId, "CONFIRMED"));
+        stats.put("completedOrders", orderRepository.countByCanteenIdAndStatus(canteenId, "COMPLETED"));
+        stats.put("cancelledOrders", orderRepository.countByCanteenIdAndStatus(canteenId, "CANCELLED"));
+        stats.put("totalRevenue", totalRevenue);
+        stats.put("totalMenus", menuRepository.findByCanteenIdOrderByDateDesc(canteenId).size());
+        stats.put("reviewCount", reviewRepository.findByMenuCanteenIdOrderByCreateTimeDesc(canteenId).size());
+
+        return stats;
+    }
 }

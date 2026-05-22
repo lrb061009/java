@@ -4,45 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>食堂订餐系统</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/interactions.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .container { text-align: center; color: white; }
-        h1 { font-size: 3rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; }
-        .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .btn { padding: 0.75rem 2rem; border-radius: 8px; font-size: 1.1rem; text-decoration: none; font-weight: 600; transition: all 0.3s; border: 2px solid white; color: white; }
-        .btn-primary { background: white; color: #667eea; }
-        .btn-primary:hover { background: #f0f0f0; transform: translateY(-2px); }
-        .btn-outline:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
-        .features { display: flex; gap: 2rem; margin-top: 3rem; flex-wrap: wrap; justify-content: center; }
-        .feature { background: rgba(255,255,255,0.15); border-radius: 12px; padding: 1.5rem; width: 200px; backdrop-filter: blur(10px); }
-        .feature h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
-        .feature p { font-size: 0.9rem; margin-bottom: 0; opacity: 0.8; }
+        html { background: #292524; }
+        body { opacity: 0; transition: opacity 0.3s ease-out; }
+        body.page-ready { opacity: 1; }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('page-ready');
+        });
+    </script>
 </head>
 <body>
-<div class="container">
-    <h1>食堂订餐与评价系统</h1>
-    <p>在线订餐、美食评价尽在掌握</p>
-    <div class="btn-group">
-        <a th:href="@{/login}" class="btn btn-primary">立即登录</a>
-        <a th:href="@{/register}" class="btn btn-outline">注册账号</a>
-    </div>
-    <div class="features">
-        <div class="feature">
-            <h3>浏览菜单</h3>
-            <p>查看每日食堂菜品</p>
+<div class="hero">
+    <div class="hero-card reveal">
+        <div class="hero-icon">🍽️</div>
+        <h1>食堂订餐</h1>
+        <p class="hero-subtitle">今日菜单、在线下单、订单跟踪，一站式校园订餐服务</p>
+        <div class="hero-actions">
+            <a th:href="@{/login}" class="btn btn-primary btn-lg btn-ripple btn-press">登录使用</a>
+            <a th:href="@{/register}" class="btn btn-outline btn-lg btn-ripple btn-press">注册账号</a>
         </div>
-        <div class="feature">
-            <h3>在线订餐</h3>
-            <p>一键下单方便快捷</p>
-        </div>
-        <div class="feature">
-            <h3>评价美食</h3>
-            <p>分享你的用餐体验</p>
+        <div class="hero-features">
+            <div class="hero-feature">
+                <div class="feature-icon">📋</div>
+                <div class="feature-label">浏览菜单</div>
+            </div>
+            <div class="hero-feature">
+                <div class="feature-icon">🛒</div>
+                <div class="feature-label">在线订餐</div>
+            </div>
+            <div class="hero-feature">
+                <div class="feature-icon">⭐</div>
+                <div class="feature-label">美食评价</div>
+            </div>
         </div>
     </div>
 </div>
+<script src="/js/interactions.js" defer></script>
 </body>
 </html>

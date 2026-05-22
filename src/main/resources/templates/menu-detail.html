@@ -4,173 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${menu.name} + ' - 菜品详情'">菜品详情</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/interactions.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .header h2 { font-size: 1.3rem; }
-        .header .user-info { font-size: 0.9rem; opacity: 0.9; display: flex; align-items: center; gap: 1rem; }
-        .header .balance { background: rgba(255,255,255,0.25); padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 600; }
-        .header .btn-recharge { background: white; color: #667eea; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.8rem; border: none; cursor: pointer; font-weight: 600; }
-        .header .btn-recharge:hover { background: #f0f0f0; }
-        .header nav a { color: white; text-decoration: none; margin-left: 1.5rem; padding: 0.4rem 0.8rem; border-radius: 6px; transition: background 0.3s; font-size: 0.95rem; }
-        .header nav a:hover { background: rgba(255,255,255,0.2); }
-        .content { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-        .detail-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
-        .detail-card h2 { font-size: 1.6rem; color: #333; margin-bottom: 0.5rem; }
-        .detail-card .meal-tag { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; background: #dbeafe; color: #2563eb; margin-right: 0.5rem; }
-        .detail-card .canteen { display: inline-block; padding: 0.2rem 0.7rem; border-radius: 4px; font-size: 0.85rem; background: #ede9fe; color: #7c3aed; }
-        .detail-card .price { color: #e74c3c; font-size: 1.8rem; font-weight: 700; margin: 1rem 0; }
-        .detail-card .meta { color: #888; font-size: 0.9rem; margin-bottom: 1rem; }
-        .detail-card .desc { color: #555; line-height: 1.8; margin-bottom: 1.5rem; }
-        .btn { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 6px; font-size: 1rem; text-decoration: none; font-weight: 500; transition: all 0.2s; border: none; cursor: pointer; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a6fd6; }
-        .btn-back { color: #667eea; }
-        .section-title { font-size: 1.2rem; color: #333; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #667eea; }
-        .review-list { display: flex; flex-direction: column; gap: 1rem; }
-        .review-card { background: white; border-radius: 10px; padding: 1.2rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .review-card .reviewer { font-weight: 600; color: #333; margin-bottom: 0.3rem; }
-        .review-card .stars { color: #f59e0b; font-size: 1rem; margin-bottom: 0.3rem; }
-        .review-card .comment { color: #555; line-height: 1.6; font-size: 0.95rem; }
-        .review-card .time { color: #999; font-size: 0.8rem; margin-top: 0.5rem; }
-        .avg-rating { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
-        .avg-rating .score { font-size: 2.5rem; font-weight: 700; color: #f59e0b; }
-        .avg-rating .info { color: #888; }
-        .empty { text-align: center; padding: 2rem; color: #999; }
+        html { background: var(--color-bg); }
+        body { opacity: 0; transition: opacity 0.3s ease-out; }
+        body.page-ready { opacity: 1; }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() { document.body.classList.add('page-ready'); });
+    </script>
 </head>
 <body>
-<div class="header">
-    <h2>食堂订餐系统</h2>
-    <div class="user-info">
-        <span>欢迎，<span th:text="${user.realName}">用户</span></span>
-        <span class="balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
-        <button class="btn-recharge" onclick="showRechargeModal()">充值</button>
+<div class="app-header">
+    <span class="app-header-brand">🍽️ 食堂订餐</span>
+    <div class="app-header-right">
+        <span class="user-greeting">欢迎，<span th:text="${user.realName}">用户</span></span>
+        <span class="user-balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
+        <button class="btn-recharge btn-press" onclick="showRechargeModal()">充值</button>
     </div>
-    <nav>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.3);">管理后台</a>
-        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" style="background:rgba(255,255,255,0.3);">商家后台</a>
+    <nav class="app-nav">
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.2);">管理后台</a>
+        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" style="background:rgba(255,255,255,0.2);">商家后台</a>
         <a th:href="@{/home}">今日菜单</a>
         <a th:href="@{/my-orders}">我的订单</a>
         <a th:href="@{/my-reviews}">我的评价</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
 </div>
-<div class="content">
-    <div class="detail-card">
-        <span class="meal-tag"
-              th:text="${menu.mealType == 'BREAKFAST'} ? '早餐' : (${menu.mealType == 'LUNCH'} ? '午餐' : '晚餐')">餐别</span>
-        <span class="canteen" th:if="${menu.canteen != null}" th:text="${menu.canteen.name}">食堂</span>
+
+<div class="content" style="max-width:800px;">
+    <!-- Detail Card -->
+    <div class="detail-card reveal">
+        <div class="detail-header">
+            <span class="meal-tag"
+                  th:classappend="${menu.mealType == 'BREAKFAST'} ? 'meal-tag-breakfast' : (${menu.mealType == 'LUNCH'} ? 'meal-tag-lunch' : 'meal-tag-dinner')"
+                  th:text="${menu.mealType == 'BREAKFAST'} ? '早餐' : (${menu.mealType == 'LUNCH'} ? '午餐' : '晚餐')">餐别</span>
+            <span class="badge badge-purple" th:if="${menu.canteen != null}" th:text="${menu.canteen.name}">食堂</span>
+        </div>
         <h2 th:text="${menu.name}">菜品名称</h2>
-        <p class="price">¥<span th:text="${menu.price}">0.00</span></p>
-        <p class="meta">库存：<span th:text="${menu.stock}">0</span> 份 | 日期：<span th:text="${menu.date}">2024-01-01</span></p>
-        <p class="desc" th:text="${menu.description}">菜品描述</p>
-        <div style="display:flex; gap:0.5rem;">
-            <a th:href="@{/home}" class="btn btn-back">返回菜单</a>
-            <button class="btn btn-primary" onclick="orderNow()">立即下单</button>
+        <p class="detail-price">¥<span th:text="${menu.price}">0.00</span></p>
+        <p class="detail-meta">库存：<span th:text="${menu.stock}">0</span> 份 &nbsp;|&nbsp; 日期：<span th:text="${menu.date}">2024-01-01</span></p>
+        <p class="detail-desc" th:text="${menu.description}">菜品描述</p>
+        <div class="flex gap-2">
+            <a th:href="@{/home}" class="btn btn-ghost btn-press">← 返回菜单</a>
+            <button class="btn btn-primary btn-ripple btn-press" onclick="orderNow()">立即下单</button>
         </div>
     </div>
 
-    <div class="avg-rating">
-        <div class="score" th:text="${avgRating}">0.0</div>
-        <div class="info">
-            <div style="font-size:1.1rem; color:#333;">综合评分</div>
-            <div th:text="'共 ' + ${#lists.size(reviews)} + ' 条评价'">共 0 条评价</div>
+    <!-- Average Rating -->
+    <div class="avg-rating-box reveal">
+        <div class="rating-score" th:text="${avgRating}">0.0</div>
+        <div class="rating-info">
+            <div style="font-size:var(--text-lg); color:var(--color-text); font-weight:600;">综合评分</div>
+            <div class="text-muted" th:text="'共 ' + ${#lists.size(reviews)} + ' 条评价'">共 0 条评价</div>
         </div>
     </div>
 
+    <!-- Reviews -->
     <div class="section-title">用户评价</div>
 
-    <div th:if="${#lists.isEmpty(reviews)}" class="empty">
-        <p>暂无评价，成为第一个评价的人吧</p>
+    <div th:if="${#lists.isEmpty(reviews)}" class="empty-state">
+        <p class="empty-text">暂无评价，成为第一个评价的人吧</p>
     </div>
 
-    <div class="review-list">
-        <div class="review-card" th:each="review : ${reviews}">
-            <div class="reviewer" th:text="${review.user.realName}">用户</div>
+    <div class="review-list reveal-stagger" th:if="${!#lists.isEmpty(reviews)}">
+        <div class="review-card reveal" th:each="review : ${reviews}">
+            <div class="review-item-name" th:text="${review.user.realName}">用户</div>
             <div class="stars">
                 <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                    <span th:text="${i <= review.rating} ? '★' : '☆'">★</span>
+                    <span th:text="${i <= review.rating} ? '★' : '☆'" th:class="${i > review.rating} ? 'star-empty'">★</span>
                 </th:block>
             </div>
-            <div class="comment" th:text="${review.comment}">评价内容</div>
-            <div class="time" th:text="${#temporals.format(review.createTime, 'yyyy-MM-dd HH:mm')}">时间</div>
+            <div class="review-comment" th:text="${review.comment}">评价内容</div>
+            <div class="review-time" th:text="${#temporals.format(review.createTime, 'yyyy-MM-dd HH:mm')}">时间</div>
         </div>
     </div>
 </div>
 
-<div id="rechargeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1001; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:12px; padding:2rem; width:380px; max-width:90%;">
-        <h3 style="margin-bottom:1rem;">账户充值</h3>
-        <p style="color:#666; margin-bottom:0.5rem;">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
-        <label style="display:block; margin-bottom:0.4rem; color:#555;">充值金额</label>
-        <input type="number" id="rechargeAmount" value="100" min="1" step="0.01" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1.5rem; font-size:1rem;">
-        <div style="display:flex; gap:0.5rem;">
-            <button onclick="submitRecharge()" style="flex:1; padding:0.6rem; background:#10b981; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">确认充值</button>
-            <button onclick="closeRechargeModal()" style="flex:1; padding:0.6rem; background:#eee; color:#666; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">取消</button>
+<!-- Recharge Modal -->
+<div id="rechargeModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <h3>账户充值</h3>
+        <p class="text-muted mb-4" style="font-size:var(--text-sm);">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
+        <div class="form-group">
+            <label class="form-label">充值金额</label>
+            <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01">
+        </div>
+        <div class="btn-row">
+            <button id="rechargeSubmitBtn" onclick="submitRecharge()" class="btn btn-success btn-ripple btn-press">确认充值</button>
+            <button onclick="closeRechargeModal()" class="btn btn-ghost">取消</button>
         </div>
     </div>
 </div>
 
-<div id="orderModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:12px; padding:2rem; width:380px; max-width:90%;">
-        <h3 style="margin-bottom:1rem;">下单 - <span th:text="${menu.name}"></span></h3>
-        <label style="display:block; margin-bottom:0.4rem; color:#555;">数量</label>
-        <input type="number" id="orderQuantity" value="1" min="1" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1rem; font-size:1rem;">
-        <label style="display:block; margin-bottom:0.4rem; color:#555;">备注</label>
-        <input type="text" id="orderRemark" placeholder="可选" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1.5rem; font-size:1rem;">
-        <div style="display:flex; gap:0.5rem;">
-            <button onclick="submitOrder()" style="flex:1; padding:0.6rem; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">确认下单</button>
-            <button onclick="closeModal()" style="flex:1; padding:0.6rem; background:#eee; color:#666; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">取消</button>
+<!-- Order Modal -->
+<div id="orderModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <h3>下单 - <span th:text="${menu.name}"></span></h3>
+        <div class="form-group">
+            <label class="form-label">数量</label>
+            <input class="form-input" type="number" id="orderQuantity" value="1" min="1">
+        </div>
+        <div class="form-group">
+            <label class="form-label">备注</label>
+            <input class="form-input" type="text" id="orderRemark" placeholder="可选">
+        </div>
+        <div class="btn-row">
+            <button id="orderSubmitBtn" onclick="submitOrder()" class="btn btn-primary btn-ripple btn-press">确认下单</button>
+            <button onclick="closeModal()" class="btn btn-ghost">取消</button>
         </div>
     </div>
 </div>
 
 <script>
-function showRechargeModal() { document.getElementById('rechargeModal').style.display = 'flex'; }
-function closeRechargeModal() { document.getElementById('rechargeModal').style.display = 'none'; }
+function showRechargeModal() {
+    var modal = document.getElementById('rechargeModal');
+    modal.style.display = 'flex';
+    modal.classList.remove('modal-hidden');
+}
+function closeRechargeModal() {
+    var modal = document.getElementById('rechargeModal');
+    modal.classList.add('modal-hidden');
+    setTimeout(function() { modal.style.display = 'none'; }, 250);
+}
 function submitRecharge() {
     var amount = document.getElementById('rechargeAmount').value;
-    if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的充值金额'); return; }
+    if (!amount || parseFloat(amount) <= 0) {
+        Toast.show('请输入有效的充值金额', 'error');
+        return;
+    }
     var userId = [[${user.id}]];
-    fetch('/api/user/charge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId.toString(), amount: amount })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) { alert('充值失败：' + data.error); return; }
-        alert('充值成功！当前余额：¥' + data.balance);
-        closeRechargeModal();
-        location.reload();
-    });
+    asyncSubmit(
+        fetch('/api/user/charge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId.toString(), amount: amount })
+        }),
+        { submitBtn: '#rechargeSubmitBtn', successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '充值中...', reload: true }
+    );
 }
 function orderNow() {
-    document.getElementById('orderModal').style.display = 'flex';
+    var modal = document.getElementById('orderModal');
+    modal.style.display = 'flex';
+    modal.classList.remove('modal-hidden');
 }
 function closeModal() {
-    document.getElementById('orderModal').style.display = 'none';
+    var modal = document.getElementById('orderModal');
+    modal.classList.add('modal-hidden');
+    setTimeout(function() { modal.style.display = 'none'; }, 250);
 }
 function submitOrder() {
     var qty = parseInt(document.getElementById('orderQuantity').value);
     var remark = document.getElementById('orderRemark').value;
     var userId = [[${user.id}]];
-    var menuId = [[${menu.id}]];
-    fetch('/api/order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId, items: [{ menuId: menuId, quantity: qty }], remark: remark })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) { alert('下单失败：' + data.error); return; }
-        alert('下单成功！');
-        closeModal();
-        location.reload();
-    });
+    asyncSubmit(
+        fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId, items: [{ menuId: [[${menu.id}]], quantity: qty }], remark: remark })
+        }),
+        { submitBtn: '#orderSubmitBtn', successMsg: '下单成功！', errorMsg: '下单失败', loadingText: '下单中...', reload: true }
+    );
 }
 </script>
+<script src="/js/interactions.js" defer></script>
 </body>
 </html>

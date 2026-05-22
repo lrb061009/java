@@ -396,6 +396,16 @@ public class ApiController {
         }
     }
 
+    @GetMapping("/merchant/reviews")
+    public ResponseEntity<?> getMerchantReviews(@RequestParam Long canteenId) {
+        return ResponseEntity.ok(reviewService.getCanteenReviews(canteenId));
+    }
+
+    @GetMapping("/merchant/stats")
+    public ResponseEntity<?> getMerchantStats(@RequestParam Long canteenId) {
+        return ResponseEntity.ok(statisticsService.getMerchantStats(canteenId));
+    }
+
     @PostMapping("/merchant/verify")
     public ResponseEntity<?> verifyTakeCode(@RequestBody Map<String, String> body) {
         try {

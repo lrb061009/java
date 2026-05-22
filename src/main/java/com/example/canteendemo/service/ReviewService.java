@@ -23,16 +23,16 @@ public class ReviewService {
         if (rating < 1 || rating > 5) {
             throw new RuntimeException("评分必须在1-5之间");
         }
-        if (reviewRepository.existsByOrderId(orderId)) {
-            throw new RuntimeException("该订单已经评价过了");
+        if (reviewRepository.existsByOrderIdAndMenuId(orderId, menuId)) {
+            throw new RuntimeException("该菜品在此订单中已经评价过了");
         }
 
         Order order = orderService.findById(orderId);
         if (!order.getUser().getId().equals(userId)) {
             throw new RuntimeException("只能评价自己的订单");
         }
-        if (!"COMPLETED".equals(order.getStatus())) {
-            throw new RuntimeException("只能评价已完成的订单");
+        if (!"CONFIRMED".equals(order.getStatus()) && !"COMPLETED".equals(order.getStatus())) {
+            throw new RuntimeException("只能评价已确认或已完成的订单");
         }
 
         Menu menu = menuService.findById(menuId);
@@ -89,5 +89,9 @@ public class ReviewService {
 
     public List<Review> getAllReviews() {
         return reviewRepository.findAllByOrderByCreateTimeDesc();
+    }
+
+    public List<Review> getCanteenReviews(Long canteenId) {
+        return reviewRepository.findByMenuCanteenIdOrderByCreateTimeDesc(canteenId);
     }
 }

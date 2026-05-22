@@ -34,31 +34,11 @@ public class DataInitializer implements CommandLineRunner {
         paymentRepository.deleteAll();
         orderRepository.deleteAll();
 
-        List<User> allUsers = userRepository.findAll();
-        boolean needsUserSeed = allUsers.isEmpty();
-
-        if (!needsUserSeed) {
-            for (User u : allUsers) {
-                if (u.getBalance() == null || u.getBalance().compareTo(BigDecimal.ZERO) <= 0) {
-                    u.setBalance(new BigDecimal("100.00"));
-                    userRepository.save(u);
-                }
-            }
-        } else {
-            userRepository.save(User.builder()
-                    .username("admin").password("123456").realName("管理员").role("ADMIN")
-                    .phone("13800000000").department("行政部").balance(new BigDecimal("500.00")).build());
-            userRepository.save(User.builder()
-                    .username("zhangsan").password("123456").realName("张三").role("USER")
-                    .phone("13800000001").department("研发部").balance(new BigDecimal("200.00")).build());
-            userRepository.save(User.builder()
-                    .username("lisi").password("123456").realName("李四").role("USER")
-                    .phone("13800000002").department("市场部").balance(new BigDecimal("150.00")).build());
-            userRepository.save(User.builder()
-                    .username("merchant1").password("123456").realName("王老板").role("MERCHANT")
-                    .phone("13800000003").department("食堂管理").balance(BigDecimal.ZERO)
-                    .managedCanteenId(1L).build());
-        }
+        // Ensure seed users always exist
+        ensureUser("admin", "123456", "管理员", "ADMIN", "13800000000", "行政部", new BigDecimal("500.00"), null);
+        ensureUser("zhangsan", "123456", "张三", "USER", "13800000001", "研发部", new BigDecimal("200.00"), null);
+        ensureUser("lisi", "123456", "李四", "USER", "13800000002", "市场部", new BigDecimal("150.00"), null);
+        ensureUser("merchant1", "123456", "王老板", "MERCHANT", "13800000003", "食堂管理", BigDecimal.ZERO, 1L);
 
         // Ensure canteens exist
         List<Canteen> canteens = canteenRepository.findAll();
@@ -123,5 +103,18 @@ public class DataInitializer implements CommandLineRunner {
                 .date(today).mealType("DINNER").name("番茄蛋汤面")
                 .price(new BigDecimal("10.00")).description("番茄鸡蛋汤配手工面，清淡可口")
                 .stock(60).status("AVAILABLE").canteen(c3).build());
+    }
+
+    private void ensureUser(String username, String password, String realName, String role,
+                            String phone, String department, BigDecimal balance, Long managedCanteenId) {
+        if (!userRepository.existsByUsername(username)) {
+            User.UserBuilder builder = User.builder()
+                    .username(username).password(password).realName(realName).role(role)
+                    .phone(phone).department(department).balance(balance);
+            if (managedCanteenId != null) {
+                builder.managedCanteenId(managedCanteenId);
+            }
+            userRepository.save(builder.build());
+        }
     }
 }

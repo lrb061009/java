@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 @Controller
 @RequiredArgsConstructor
@@ -128,9 +130,15 @@ public class WebController {
                 paymentStatusMap.put(order.getId(), payment.getPaymentStatus());
             });
         }
+        List<com.example.canteendemo.entity.Review> userReviews = reviewService.getUserReviews(user.getId());
+        java.util.Set<String> reviewedKeys = new java.util.HashSet<>();
+        for (com.example.canteendemo.entity.Review r : userReviews) {
+            reviewedKeys.add(r.getOrder().getId() + "-" + r.getMenu().getId());
+        }
         model.addAttribute("user", user);
         model.addAttribute("orders", orders);
         model.addAttribute("paymentStatusMap", paymentStatusMap);
+        model.addAttribute("reviewedKeys", reviewedKeys);
         return "my-orders";
     }
 
@@ -205,6 +213,8 @@ public class WebController {
             }
             model.addAttribute("canteenOrders", canteenOrders);
             model.addAttribute("paymentStatusMap", paymentStatusMap);
+            model.addAttribute("canteenReviews", reviewService.getCanteenReviews(canteenId));
+            model.addAttribute("merchantStats", statisticsService.getMerchantStats(canteenId));
             model.addAttribute("myCanteen", canteenService.findById(canteenId));
             model.addAttribute("today", LocalDate.now());
         }

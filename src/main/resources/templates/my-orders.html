@@ -4,109 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的订单 - 食堂订餐系统</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/interactions.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .header h2 { font-size: 1.3rem; }
-        .header .user-info { font-size: 0.9rem; opacity: 0.9; display: flex; align-items: center; gap: 1rem; }
-        .header .balance { background: rgba(255,255,255,0.25); padding: 0.3rem 0.7rem; border-radius: 20px; font-weight: 600; }
-        .header .btn-recharge { background: white; color: #667eea; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.8rem; border: none; cursor: pointer; font-weight: 600; }
-        .header .btn-recharge:hover { background: #f0f0f0; }
-        .header nav a { color: white; text-decoration: none; margin-left: 1.5rem; padding: 0.4rem 0.8rem; border-radius: 6px; transition: background 0.3s; font-size: 0.95rem; }
-        .header nav a:hover, .header nav a.active { background: rgba(255,255,255,0.2); }
-        .content { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        .order-list { display: flex; flex-direction: column; gap: 1rem; }
-        .order-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .order-card .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-        .order-card .order-id { color: #999; font-size: 0.85rem; }
-        .order-card .status { padding: 0.2rem 0.7rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
-        .status-PENDING { background: #fef3c7; color: #d97706; }
-        .status-CONFIRMED { background: #dbeafe; color: #2563eb; }
-        .status-COMPLETED { background: #d1fae5; color: #059669; }
-        .status-CANCELLED { background: #fee2e2; color: #dc2626; }
-        .order-card .take-code { font-size: 1rem; font-weight: 700; color: #667eea; margin-bottom: 0.8rem; }
-        .order-card .detail-list { border-top: 1px solid #eee; padding-top: 0.8rem; margin-top: 0.5rem; }
-        .order-card .detail-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; color: #555; font-size: 0.95rem; }
-        .order-card .detail-item .name { flex: 1; }
-        .order-card .detail-item .qty { color: #888; margin: 0 1rem; }
-        .order-card .detail-item .line-total { font-weight: 600; color: #e74c3c; }
-        .order-card .total { color: #e74c3c; font-weight: 700; font-size: 1.1rem; text-align: right; border-top: 1px solid #eee; padding-top: 0.5rem; margin-top: 0.5rem; }
-        .order-card .order-info { color: #666; font-size: 0.85rem; margin-top: 0.5rem; }
-        .order-card .actions { margin-top: 0.8rem; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
-        .btn { padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; border: none; cursor: pointer; transition: all 0.2s; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a6fd6; }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
-        .btn-outline { border: 1px solid #667eea; color: #667eea; background: transparent; }
-        .btn-outline:hover { background: #667eea; color: white; }
-        .payment-status { padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
-        .payment-paid { background: #d1fae5; color: #059669; }
-        .payment-unpaid { background: #fef3c7; color: #d97706; }
-        .payment-refunded { background: #fee2e2; color: #dc2626; }
-        .empty { text-align: center; padding: 3rem; color: #999; font-size: 1.1rem; }
-        .remark { color: #999; font-size: 0.85rem; font-style: italic; }
+        html { background: var(--color-bg); }
+        body { opacity: 0; transition: opacity 0.3s ease-out; }
+        body.page-ready { opacity: 1; }
+        .remark-text { color: var(--color-text-muted); font-size: var(--text-xs); font-style: italic; }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() { document.body.classList.add('page-ready'); });
+    </script>
 </head>
 <body>
-<div class="header">
-    <h2>食堂订餐系统</h2>
-    <div class="user-info">
-        <span>欢迎，<span th:text="${user.realName}">用户</span></span>
-        <span class="balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
-        <button class="btn-recharge" onclick="showRechargeModal()">充值</button>
+<div class="app-header">
+    <span class="app-header-brand">🍽️ 食堂订餐</span>
+    <div class="app-header-right">
+        <span class="user-greeting">欢迎，<span th:text="${user.realName}">用户</span></span>
+        <span class="user-balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
+        <button class="btn-recharge btn-press" onclick="showRechargeModal()">充值</button>
     </div>
-    <nav>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.3);">管理后台</a>
-        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" style="background:rgba(255,255,255,0.3);">商家后台</a>
+    <nav class="app-nav">
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.2);">管理后台</a>
+        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" style="background:rgba(255,255,255,0.2);">商家后台</a>
         <a th:href="@{/home}">今日菜单</a>
         <a th:href="@{/my-orders}" class="active">我的订单</a>
         <a th:href="@{/my-reviews}">我的评价</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
 </div>
-<div class="content">
-    <h3 style="margin-bottom:1.5rem; color:#333;">我的订单</h3>
 
-    <div th:if="${#lists.isEmpty(orders)}" class="empty">
-        <p>暂无订单</p>
-        <a th:href="@{/home}" class="btn btn-primary" style="display:inline-block; margin-top:1rem;">去下单</a>
+<div class="content" style="max-width:900px;">
+    <div class="section-header mb-4">
+        <h3 style="font-size:var(--text-lg); color:var(--color-text);">我的订单</h3>
     </div>
 
-    <div class="order-list">
-        <div class="order-card" th:each="order : ${orders}">
+    <div th:if="${#lists.isEmpty(orders)}" class="empty-state">
+        <div class="empty-icon">📦</div>
+        <p class="empty-text">暂无订单</p>
+        <a th:href="@{/home}" class="btn btn-primary btn-ripple btn-press">去下单</a>
+    </div>
+
+    <div class="order-list reveal-stagger" th:if="${!#lists.isEmpty(orders)}">
+        <div class="order-card reveal" th:each="order : ${orders}">
             <div class="order-header">
                 <span class="order-id">订单 #<span th:text="${order.id}">1</span></span>
-                <span class="status"
-                      th:classappend="'status-' + ${order.status}"
+                <span class="badge"
+                      th:classappend="${order.status == 'PENDING'} ? 'badge-warn' : (${order.status == 'CONFIRMED'} ? 'badge-info' : (${order.status == 'COMPLETED'} ? 'badge-success' : 'badge-danger'))"
                       th:text="${order.status == 'PENDING'} ? '待处理' : (${order.status == 'CONFIRMED'} ? '已确认' : (${order.status == 'COMPLETED'} ? '已完成' : '已取消'))">状态</span>
             </div>
+
             <div class="take-code" th:if="${order.takeCode != null}">
                 取餐码：<span th:text="${order.takeCode}">123456</span>
             </div>
-            <div class="detail-list">
-                <div class="detail-item" th:each="detail : ${order.orderDetails}">
-                    <span class="name" th:text="${detail.menu.name}">菜品名称</span>
-                    <span class="qty" th:text="'x' + ${detail.quantity}">x1</span>
-                    <span class="line-total">¥<span th:text="${detail.price}">0.00</span> × <span th:text="${detail.quantity}">1</span></span>
+
+            <div class="order-detail-list">
+                <div class="order-detail-item" th:each="detail : ${order.orderDetails}">
+                    <span th:text="${detail.menu.name}">菜品名称</span>
+                    <span style="color:var(--color-text-muted);">x<span th:text="${detail.quantity}">1</span></span>
+                    <span class="detail-price">¥<span th:text="${detail.price}">0.00</span></span>
                 </div>
             </div>
-            <div class="total">合计：¥<span th:text="${order.totalPrice}">0.00</span></div>
-            <div class="order-info" th:text="'下单时间：' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">时间</div>
-            <div th:if="${order.remark}" class="remark" th:text="'备注：' + ${order.remark}"></div>
-            <div class="actions">
-                <span class="payment-status"
-                      th:classappend="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? 'payment-paid' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? 'payment-refunded' : 'payment-unpaid')"
+
+            <div class="order-total">合计：¥<span th:text="${order.totalPrice}">0.00</span></div>
+
+            <div class="order-meta" th:text="'下单时间：' + ${#temporals.format(order.orderTime, 'yyyy-MM-dd HH:mm:ss')}">时间</div>
+            <div th:if="${order.remark}" class="remark-text" th:text="'备注：' + ${order.remark}"></div>
+
+            <div class="order-actions">
+                <span class="badge"
+                      th:classappend="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? 'badge-success' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? 'badge-danger' : 'badge-warn')"
                       th:text="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? '已支付' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? '已退款' : '未支付')">已支付</span>
-                <button th:if="${order.status == 'PENDING'}" class="btn btn-danger" th:attr="onclick='cancelOrder(' + ${order.id} + ')'">取消订单</button>
-                <th:block th:if="${order.status == 'COMPLETED'}">
+
+                <button th:if="${order.status == 'PENDING'}" class="btn btn-danger btn-sm btn-ripple btn-press"
+                        th:attr="onclick='cancelOrder(' + ${order.id} + ')'">取消订单</button>
+
+                <th:block th:if="${order.status == 'CONFIRMED' || order.status == 'COMPLETED'}">
                     <th:block th:each="detail : ${order.orderDetails}">
-                        <button class="btn btn-success"
+                        <button class="btn btn-outline btn-sm btn-ripple btn-press"
+                                th:if="${!#sets.contains(reviewedKeys, '' + order.id + '-' + detail.menu.id)}"
                                 th:attr="onclick='showReviewModal(' + ${order.id} + ',' + ${detail.menu.id} + ',\'' + ${detail.menu.name} + '\')'"
                                 th:text="'评价 ' + ${detail.menu.name}">评价</button>
+                        <span th:if="${#sets.contains(reviewedKeys, '' + order.id + '-' + detail.menu.id)}"
+                              style="color:var(--color-success); font-size:var(--text-sm); font-weight:600;"
+                              th:text="'✓ 已评价 ' + ${detail.menu.name}"></span>
                     </th:block>
                 </th:block>
             </div>
@@ -114,58 +95,73 @@
     </div>
 </div>
 
-<div id="rechargeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1001; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:12px; padding:2rem; width:380px; max-width:90%;">
-        <h3 style="margin-bottom:1rem;">账户充值</h3>
-        <p style="color:#666; margin-bottom:0.5rem;">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
-        <label style="display:block; margin-bottom:0.4rem; color:#555;">充值金额</label>
-        <input type="number" id="rechargeAmount" value="100" min="1" step="0.01" style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1.5rem; font-size:1rem;">
-        <div style="display:flex; gap:0.5rem;">
-            <button onclick="submitRecharge()" style="flex:1; padding:0.6rem; background:#10b981; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">确认充值</button>
-            <button onclick="closeRechargeModal()" style="flex:1; padding:0.6rem; background:#eee; color:#666; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">取消</button>
+<!-- Recharge Modal -->
+<div id="rechargeModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card">
+        <h3>账户充值</h3>
+        <p class="text-muted mb-4" style="font-size:var(--text-sm);">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
+        <div class="form-group">
+            <label class="form-label">充值金额</label>
+            <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01">
+        </div>
+        <div class="btn-row">
+            <button id="rechargeSubmitBtn" onclick="submitRecharge()" class="btn btn-success btn-ripple btn-press">确认充值</button>
+            <button onclick="closeRechargeModal()" class="btn btn-ghost">取消</button>
         </div>
     </div>
 </div>
 
-<div id="reviewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:12px; padding:2rem; width:420px; max-width:90%;">
-        <h3 style="margin-bottom:0.5rem;">评价 - <span id="reviewMenuName"></span></h3>
-        <label style="display:block; margin-bottom:0.4rem; color:#555;">评分</label>
-        <div id="starRating" style="margin-bottom:1rem; font-size:1.8rem; cursor:pointer;">
-            <span onclick="setRating(1)">☆</span>
-            <span onclick="setRating(2)">☆</span>
-            <span onclick="setRating(3)">☆</span>
-            <span onclick="setRating(4)">☆</span>
-            <span onclick="setRating(5)">☆</span>
+<!-- Review Modal -->
+<div id="reviewModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card" style="width:440px;">
+        <h3>评价 - <span id="reviewMenuName"></span></h3>
+        <div class="form-group">
+            <label class="form-label">评分</label>
+            <div class="star-rating" id="starRating">
+                <span class="star" onclick="setRating(1)">★</span>
+                <span class="star" onclick="setRating(2)">★</span>
+                <span class="star" onclick="setRating(3)">★</span>
+                <span class="star" onclick="setRating(4)">★</span>
+                <span class="star" onclick="setRating(5)">★</span>
+            </div>
         </div>
-        <label style="display:block; margin-bottom:0.4rem; color:#555;">评价内容</label>
-        <textarea id="reviewComment" rows="3" placeholder="分享你的用餐体验..." style="width:100%; padding:0.6rem; border:1px solid #ddd; border-radius:6px; margin-bottom:1.5rem; font-size:1rem; resize:vertical;"></textarea>
-        <div style="display:flex; gap:0.5rem;">
-            <button onclick="submitReview()" style="flex:1; padding:0.6rem; background:#667eea; color:white; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">提交评价</button>
-            <button onclick="closeReviewModal()" style="flex:1; padding:0.6rem; background:#eee; color:#666; border:none; border-radius:6px; cursor:pointer; font-size:1rem;">取消</button>
+        <div class="form-group">
+            <label class="form-label">评价内容</label>
+            <textarea class="form-input" id="reviewComment" rows="3" placeholder="分享你的用餐体验..."></textarea>
+        </div>
+        <div class="btn-row">
+            <button id="reviewSubmitBtn" onclick="submitReview()" class="btn btn-primary btn-ripple btn-press">提交评价</button>
+            <button onclick="closeReviewModal()" class="btn btn-ghost">取消</button>
         </div>
     </div>
 </div>
 
 <script>
-function showRechargeModal() { document.getElementById('rechargeModal').style.display = 'flex'; }
-function closeRechargeModal() { document.getElementById('rechargeModal').style.display = 'none'; }
+function showRechargeModal() {
+    var modal = document.getElementById('rechargeModal');
+    modal.style.display = 'flex';
+    modal.classList.remove('modal-hidden');
+}
+function closeRechargeModal() {
+    var modal = document.getElementById('rechargeModal');
+    modal.classList.add('modal-hidden');
+    setTimeout(function() { modal.style.display = 'none'; }, 250);
+}
 function submitRecharge() {
     var amount = document.getElementById('rechargeAmount').value;
-    if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的充值金额'); return; }
+    if (!amount || parseFloat(amount) <= 0) {
+        Toast.show('请输入有效的充值金额', 'error');
+        return;
+    }
     var userId = [[${user.id}]];
-    fetch('/api/user/charge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId.toString(), amount: amount })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) { alert('充值失败：' + data.error); return; }
-        alert('充值成功！当前余额：¥' + data.balance);
-        closeRechargeModal();
-        location.reload();
-    });
+    asyncSubmit(
+        fetch('/api/user/charge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId.toString(), amount: amount })
+        }),
+        { submitBtn: '#rechargeSubmitBtn', successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '充值中...', reload: true }
+    );
 }
 
 var currentOrderId = null;
@@ -174,27 +170,28 @@ var currentRating = 0;
 
 function cancelOrder(orderId) {
     if (!confirm('确定要取消这个订单吗？')) return;
-    fetch('/api/order/' + orderId + '/cancel', { method: 'PUT' })
-        .then(r => r.json())
-        .then(data => {
-            if (data.error) { alert('取消失败：' + data.error); return; }
-            alert('订单已取消');
-            location.reload();
-        });
+    asyncSubmit(
+        fetch('/api/order/' + orderId + '/cancel', { method: 'PUT' }),
+        { successMsg: '订单已取消', errorMsg: '取消失败', loadingText: '取消中...', reload: true }
+    );
 }
 
 function showReviewModal(orderId, menuId, menuName) {
     currentOrderId = orderId;
     currentMenuId = menuId;
     document.getElementById('reviewMenuName').textContent = menuName;
-    document.getElementById('reviewModal').style.display = 'flex';
+    var modal = document.getElementById('reviewModal');
+    modal.style.display = 'flex';
+    modal.classList.remove('modal-hidden');
     currentRating = 0;
     updateStars();
     document.getElementById('reviewComment').value = '';
 }
 
 function closeReviewModal() {
-    document.getElementById('reviewModal').style.display = 'none';
+    var modal = document.getElementById('reviewModal');
+    modal.classList.add('modal-hidden');
+    setTimeout(function() { modal.style.display = 'none'; }, 250);
 }
 
 function setRating(r) {
@@ -203,30 +200,33 @@ function setRating(r) {
 }
 
 function updateStars() {
-    var stars = document.getElementById('starRating').children;
+    var stars = document.getElementById('starRating').querySelectorAll('.star');
     for (var i = 0; i < stars.length; i++) {
-        stars[i].textContent = i < currentRating ? '★' : '☆';
-        stars[i].style.color = i < currentRating ? '#f59e0b' : '#ccc';
+        if (i < currentRating) {
+            stars[i].classList.add('active');
+        } else {
+            stars[i].classList.remove('active');
+        }
     }
 }
 
 function submitReview() {
-    if (currentRating === 0) { alert('请选择评分'); return; }
+    if (currentRating === 0) {
+        Toast.show('请选择评分', 'error');
+        return;
+    }
     var comment = document.getElementById('reviewComment').value;
     var userId = [[${user.id}]];
-    fetch('/api/review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: userId, menuId: currentMenuId, orderId: currentOrderId, rating: currentRating, comment: comment })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) { alert('评价失败：' + data.error); return; }
-        alert('评价成功！');
-        closeReviewModal();
-        location.reload();
-    });
+    asyncSubmit(
+        fetch('/api/review', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId, menuId: currentMenuId, orderId: currentOrderId, rating: currentRating, comment: comment })
+        }),
+        { submitBtn: '#reviewSubmitBtn', successMsg: '评价成功！', errorMsg: '评价失败', loadingText: '提交中...', reload: true }
+    );
 }
 </script>
+<script src="/js/interactions.js" defer></script>
 </body>
 </html>
