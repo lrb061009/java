@@ -21,7 +21,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findAllByOrderByOrderTimeDesc();
 
-    @Query("SELECT o FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId ORDER BY o.orderTime DESC")
+    @Query("SELECT DISTINCT o FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId ORDER BY o.orderTime DESC")
     List<Order> findByCanteenIdOrderByOrderTimeDesc(@Param("canteenId") Long canteenId);
 
     long countByStatus(String status);
@@ -31,7 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByOrderTimeBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
 
-    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId AND o.status = 'COMPLETED'")
+    @Query("SELECT COALESCE(SUM(o.totalPrice), 0) FROM Order o WHERE o.status = 'COMPLETED' AND EXISTS (SELECT 1 FROM OrderDetail od WHERE od.order = o AND od.menu.canteen.id = :canteenId)")
     java.math.BigDecimal sumCompletedTotalPriceByCanteenId(@Param("canteenId") Long canteenId);
 
     @Query("SELECT COUNT(DISTINCT o) FROM Order o JOIN o.orderDetails od WHERE od.menu.canteen.id = :canteenId")

@@ -77,13 +77,14 @@
                       th:text="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? '已支付' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? '已退款' : '未支付')">已支付</span>
 
                 <button th:if="${order.status == 'PENDING'}" class="btn btn-danger btn-sm btn-ripple btn-press"
-                        th:attr="onclick='cancelOrder(' + ${order.id} + ')'">取消订单</button>
+                        th:data-id="${order.id}" onclick="cancelOrder(this.dataset.id)">取消订单</button>
 
                 <th:block th:if="${order.status == 'CONFIRMED' || order.status == 'COMPLETED'}">
                     <th:block th:each="detail : ${order.orderDetails}">
                         <button class="btn btn-outline btn-sm btn-ripple btn-press"
                                 th:if="${!#sets.contains(reviewedKeys, '' + order.id + '-' + detail.menu.id)}"
-                                th:attr="onclick='showReviewModal(' + ${order.id} + ',' + ${detail.menu.id} + ',\'' + ${detail.menu.name} + '\')'"
+                                th:attr="data-orderid=${order.id},data-menuid=${detail.menu.id},data-menuname=${detail.menu.name}"
+                                onclick="showReviewModalFromBtn(this)"
                                 th:text="'评价 ' + ${detail.menu.name}">评价</button>
                         <span th:if="${#sets.contains(reviewedKeys, '' + order.id + '-' + detail.menu.id)}"
                               style="color:var(--color-success); font-size:var(--text-sm); font-weight:600;"
@@ -186,6 +187,10 @@ function showReviewModal(orderId, menuId, menuName) {
     currentRating = 0;
     updateStars();
     document.getElementById('reviewComment').value = '';
+}
+
+function showReviewModalFromBtn(btn) {
+    showReviewModal(parseInt(btn.dataset.orderid), parseInt(btn.dataset.menuid), btn.dataset.menuname);
 }
 
 function closeReviewModal() {

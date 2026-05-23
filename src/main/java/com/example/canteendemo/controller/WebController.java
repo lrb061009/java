@@ -66,9 +66,10 @@ public class WebController {
                            @RequestParam String realName,
                            @RequestParam(required = false) String phone,
                            @RequestParam(required = false) String department,
+                           @RequestParam(required = false, defaultValue = "USER") String role,
                            Model model) {
         try {
-            userService.register(username, password, realName, phone, department);
+            userService.register(username, password, realName, phone, department, role);
             return "redirect:/login";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
@@ -92,6 +93,12 @@ public class WebController {
         // Refresh from DB to get latest balance
         User user = userService.findById(sessionUser.getId());
         session.setAttribute("user", user);
+
+        // Admin users are redirected to admin dashboard, cannot order
+        if ("ADMIN".equals(user.getRole())) {
+            return "redirect:/admin";
+        }
+
         model.addAttribute("user", user);
         model.addAttribute("canteenId", canteenId);
         model.addAttribute("canteens", canteenService.findAll());

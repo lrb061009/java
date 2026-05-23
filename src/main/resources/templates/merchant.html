@@ -46,53 +46,6 @@
         </div>
     </div>
 
-    <!-- Data Flow Overview -->
-    <div class="dataflow-grid reveal-stagger" th:if="${myCanteen != null}">
-        <div class="dataflow-section send reveal">
-            <h3>向系统发送</h3>
-            <p class="subtitle">商家管理菜品信息，系统接收后更新菜单</p>
-            <div style="display:flex; gap:1rem;">
-                <div style="flex:1; background:#fffbeb; border-radius:8px; padding:1rem; text-align:center;">
-                    <div style="font-size:1.5rem; margin-bottom:0.3rem;">📝</div>
-                    <div style="font-weight:600; color:#b45309;">菜品信息</div>
-                    <div style="color:#d97706; font-size:var(--text-xs);">名称、价格、库存、描述</div>
-                </div>
-                <div style="flex:1; background:#fffbeb; border-radius:8px; padding:1rem; text-align:center;">
-                    <div style="font-size:1.5rem; margin-bottom:0.3rem;">🔄</div>
-                    <div style="font-weight:600; color:#b45309;">上下架管理</div>
-                    <div style="color:#d97706; font-size:var(--text-xs);">控制菜品在售/下架状态</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="dataflow-section receive reveal">
-            <h3>系统返回</h3>
-            <p class="subtitle">系统向商家推送订单、评价和经营数据</p>
-            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-                <div style="flex:1; min-width:100px; background:#eff6ff; border-radius:8px; padding:1rem; text-align:center;">
-                    <div style="font-size:1.5rem; margin-bottom:0.3rem;">📦</div>
-                    <div style="font-weight:600; color:var(--color-info);">订单信息</div>
-                    <div style="color:#2563eb; font-size:var(--text-xs);">查看、确认用户订单</div>
-                </div>
-                <div style="flex:1; min-width:100px; background:#eff6ff; border-radius:8px; padding:1rem; text-align:center;">
-                    <div style="font-size:1.5rem; margin-bottom:0.3rem;">✅</div>
-                    <div style="font-weight:600; color:var(--color-info);">核销取餐</div>
-                    <div style="color:#2563eb; font-size:var(--text-xs);">验证取餐码完成核销</div>
-                </div>
-                <div style="flex:1; min-width:100px; background:#eff6ff; border-radius:8px; padding:1rem; text-align:center;">
-                    <div style="font-size:1.5rem; margin-bottom:0.3rem;">⭐</div>
-                    <div style="font-weight:600; color:var(--color-info);">用户评价</div>
-                    <div style="color:#2563eb; font-size:var(--text-xs);">查看用户对菜品的评价</div>
-                </div>
-                <div style="flex:1; min-width:100px; background:#eff6ff; border-radius:8px; padding:1rem; text-align:center;">
-                    <div style="font-size:1.5rem; margin-bottom:0.3rem;">📊</div>
-                    <div style="font-weight:600; color:var(--color-info);">营业数据</div>
-                    <div style="color:#2563eb; font-size:var(--text-xs);">营业额和订单统计</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Tabs -->
     <div class="tabs merchant-tabs" th:if="${myCanteen != null}">
         <button class="tab-btn active" onclick="switchTab('menus')">菜品管理（发送）</button>
@@ -183,7 +136,7 @@
                     <td th:text="${#temporals.format(order.orderTime, 'MM-dd HH:mm')}">-</td>
                     <td>
                         <button th:if="${order.status == 'PENDING'}" class="btn btn-success btn-sm btn-ripple btn-press"
-                                th:attr="onclick='confirmOrder(' + ${order.id} + ')'">确认</button>
+                                th:data-id="${order.id}" onclick="confirmOrder(this.dataset.id)">确认</button>
                     </td>
                 </tr>
                 </tbody>

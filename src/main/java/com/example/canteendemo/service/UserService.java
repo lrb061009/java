@@ -15,17 +15,20 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User register(String username, String password, String realName, String phone, String department) {
+    public User register(String username, String password, String realName, String phone, String department, String role) {
         if (userRepository.existsByUsername(username)) {
             throw new RuntimeException("用户名已存在");
+        }
+        if (role == null || role.isBlank()) {
+            role = "USER";
         }
         User user = User.builder()
                 .username(username)
                 .password(password)
                 .realName(realName)
                 .phone(phone)
-                .department(department)
-                .role("USER")
+                .department(department != null ? department : role)
+                .role(role)
                 .balance(BigDecimal.ZERO)
                 .build();
         return userRepository.save(user);
@@ -103,5 +106,32 @@ public class UserService {
         if (department != null) user.setDepartment(department);
         if (managedCanteenId != null) user.setManagedCanteenId(managedCanteenId);
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public User adminCreateUser(String username, String password, String realName, String role, String phone, String department, Long managedCanteenId) {
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("用户名已存在");
+        }
+        if (role == null || role.isBlank()) {
+            role = "USER";
+        }
+        User user = User.builder()
+                .username(username)
+                .password(password)
+                .realName(realName)
+                .role(role)
+                .phone(phone)
+                .department(department != null ? department : role)
+                .managedCanteenId(managedCanteenId)
+                .balance(BigDecimal.ZERO)
+                .build();
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = findById(id);
+        userRepository.delete(user);
     }
 }

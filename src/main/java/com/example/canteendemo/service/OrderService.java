@@ -115,7 +115,7 @@ public class OrderService {
         List<Order> orders = orderRepository.findByCanteenIdOrderByOrderTimeDesc(canteenId);
         for (Order order : orders) {
             if (takeCode.equalsIgnoreCase(order.getTakeCode())) {
-                if ("CONFIRMED".equals(order.getStatus())) {
+                if ("PENDING".equals(order.getStatus()) || "CONFIRMED".equals(order.getStatus())) {
                     order.setStatus("COMPLETED");
                     return orderRepository.save(order);
                 } else if ("COMPLETED".equals(order.getStatus())) {

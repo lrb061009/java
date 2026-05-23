@@ -41,8 +41,12 @@
                     <input class="form-input" type="text" id="phone" name="phone" placeholder="选填">
                 </div>
                 <div class="form-group" style="flex:1;">
-                    <label class="form-label" for="department">部门</label>
-                    <input class="form-input" type="text" id="department" name="department" placeholder="选填">
+                    <label class="form-label" for="role">角色/部门</label>
+                    <select class="form-input" id="role" name="role">
+                        <option value="USER">用户</option>
+                        <option value="MERCHANT">商家</option>
+                        <option value="ADMIN">管理员</option>
+                    </select>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary btn-ripple btn-press" style="width:100%; padding:0.75rem;">注 册</button>

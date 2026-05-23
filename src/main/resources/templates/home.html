@@ -39,27 +39,6 @@
         <p class="text-muted" style="font-size:var(--text-sm);" th:text="'日期：' + ${today}">日期</p>
     </div>
 
-    <!-- Flow Steps -->
-    <div class="flow-steps reveal-stagger">
-        <div class="flow-step reveal">
-            <div class="step-num">1</div>
-            <div class="step-title">浏览菜品</div>
-            <div class="step-desc">查看今日菜单和菜品详情</div>
-        </div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step reveal" style="border-top-color:#f59e0b;">
-            <div class="step-num" style="background:#f59e0b;">2</div>
-            <div class="step-title">提交订单</div>
-            <div class="step-desc">选择菜品下单，余额自动扣款</div>
-        </div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step reveal" style="border-top-color:var(--color-success);">
-            <div class="step-num" style="background:var(--color-success);">3</div>
-            <div class="step-title">查询订单</div>
-            <div class="step-desc">查看订单状态和取餐码</div>
-        </div>
-    </div>
-
     <!-- Filter Pills -->
     <div class="filter-pills">
         <a th:href="@{/home}" class="filter-pill" th:classappend="${canteenId == null} ? 'active'">全部食堂</a>

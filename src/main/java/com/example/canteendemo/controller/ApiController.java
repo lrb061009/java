@@ -36,7 +36,8 @@ public class ApiController {
                     body.get("password"),
                     body.get("realName"),
                     body.get("phone"),
-                    body.get("department")
+                    body.get("department"),
+                    body.getOrDefault("role", "USER")
             );
             Map<String, Object> result = new HashMap<>();
             result.put("id", user.getId());
@@ -453,6 +454,36 @@ public class ApiController {
                     canteenId
             );
             return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/admin/user")
+    public ResponseEntity<?> adminCreateUser(@RequestBody Map<String, Object> body) {
+        try {
+            Long canteenId = body.get("managedCanteenId") != null
+                    ? ((Number) body.get("managedCanteenId")).longValue() : null;
+            User user = userService.adminCreateUser(
+                    (String) body.get("username"),
+                    (String) body.get("password"),
+                    (String) body.get("realName"),
+                    (String) body.getOrDefault("role", "USER").toString(),
+                    (String) body.get("phone"),
+                    (String) body.get("department"),
+                    canteenId
+            );
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(Map.of("message", "删除成功"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
