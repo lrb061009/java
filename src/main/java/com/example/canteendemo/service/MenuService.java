@@ -58,24 +58,25 @@ public class MenuService {
                 .orElseThrow(() -> new RuntimeException("菜品不存在"));
     }
 
+    // Menus persist across days — show all available menus regardless of date
     public List<Menu> getTodayMenu() {
-        return menuRepository.findByDateAndStatus(LocalDate.now(), "AVAILABLE");
+        return menuRepository.findByStatus("AVAILABLE");
     }
 
     public List<Menu> getTodayMenu(Long canteenId) {
         if (canteenId != null) {
-            return menuRepository.findByCanteenIdAndDateAndStatus(canteenId, LocalDate.now(), "AVAILABLE");
+            return menuRepository.findByCanteenIdAndStatus(canteenId, "AVAILABLE");
         }
         return getTodayMenu();
     }
 
     public List<Menu> getTodayMenuByMealType(String mealType) {
-        return menuRepository.findByDateAndMealTypeAndStatus(LocalDate.now(), mealType, "AVAILABLE");
+        return menuRepository.findByMealTypeAndStatus(mealType, "AVAILABLE");
     }
 
     public List<Menu> getTodayMenuByMealType(String mealType, Long canteenId) {
         if (canteenId != null) {
-            return menuRepository.findByCanteenIdAndDateAndMealTypeAndStatus(canteenId, LocalDate.now(), mealType, "AVAILABLE");
+            return menuRepository.findByCanteenIdAndMealTypeAndStatus(canteenId, mealType, "AVAILABLE");
         }
         return getTodayMenuByMealType(mealType);
     }

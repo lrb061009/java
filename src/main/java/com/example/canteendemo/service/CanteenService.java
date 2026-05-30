@@ -4,7 +4,9 @@ import com.example.canteendemo.entity.Canteen;
 import com.example.canteendemo.repository.CanteenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -34,5 +36,12 @@ public class CanteenService {
 
     public void delete(Long id) {
         canteenRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void recordWithdrawal(Long canteenId, BigDecimal amount) {
+        Canteen canteen = findById(canteenId);
+        canteen.setTotalWithdrawn(canteen.getTotalWithdrawn().add(amount));
+        canteenRepository.save(canteen);
     }
 }

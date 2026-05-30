@@ -176,6 +176,23 @@ h1, h2, h3, h4 { margin: 0; color: var(--color-text); }
   color: #fff;
 }
 
+/* Merchant backend button — distinct style, positioned leftmost */
+.nav-btn-merchant {
+  background: linear-gradient(135deg, #059669, #10b981) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  border-radius: 20px !important;
+  padding: var(--space-2) var(--space-5) !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+  margin-right: var(--space-2);
+}
+.nav-btn-merchant:hover {
+  background: linear-gradient(135deg, #047857, #059669) !important;
+  color: #fff !important;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+}
+
 /* Admin / Merchant dark variant */
 .app-header.admin-header {
   background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
@@ -1179,6 +1196,45 @@ select.form-input {
 }
 
 .star-rating .star.active { color: #f59e0b; }
+
+/* ========================================
+   Payment Method Selector
+   ======================================== */
+.payment-methods {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  transition: all 0.2s;
+  user-select: none;
+  flex: 1;
+  min-width: 90px;
+  justify-content: center;
+}
+
+.payment-option:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  transform: translateY(-1px);
+}
+
+.payment-option:active {
+  transform: scale(0.97);
+}
+
 
 /* ========================================
    Utility Classes

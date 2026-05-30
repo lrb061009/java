@@ -94,8 +94,22 @@ public class ApiController {
         try {
             Long userId = Long.parseLong(body.get("userId"));
             BigDecimal amount = new BigDecimal(body.get("amount"));
-            User user = userService.charge(userId, amount);
-            return ResponseEntity.ok(Map.of("message", "充值成功", "balance", user.getBalance()));
+            String method = body.getOrDefault("paymentMethod", "ALIPAY");
+            User user = userService.charge(userId, amount, method);
+            return ResponseEntity.ok(Map.of("message", "充值成功", "balance", user.getBalance(), "method", method));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/merchant/withdraw")
+    public ResponseEntity<?> merchantWithdraw(@RequestBody Map<String, String> body) {
+        try {
+            Long userId = Long.parseLong(body.get("userId"));
+            Long canteenId = Long.parseLong(body.get("canteenId"));
+            BigDecimal amount = new BigDecimal(body.get("amount"));
+            User user = userService.merchantWithdraw(userId, canteenId, amount);
+            return ResponseEntity.ok(Map.of("message", "提现成功", "balance", user.getBalance()));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -335,8 +349,11 @@ public class ApiController {
         try {
             Long canteenId = body.get("canteenId") != null
                     ? ((Number) body.get("canteenId")).longValue() : null;
+            LocalDate date = body.get("date") != null
+                    ? LocalDate.parse((String) body.get("date"))
+                    : LocalDate.now();
             Menu menu = menuService.create(
-                    LocalDate.parse((String) body.get("date")),
+                    date,
                     (String) body.get("mealType"),
                     (String) body.get("name"),
                     new BigDecimal(body.get("price").toString()),

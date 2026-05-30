@@ -165,8 +165,9 @@ public class WebController {
     @PostMapping("/charge")
     public String charge(@RequestParam Long userId,
                          @RequestParam BigDecimal amount,
+                         @RequestParam(defaultValue = "ALIPAY") String paymentMethod,
                          HttpSession session) {
-        userService.charge(userId, amount);
+        userService.charge(userId, amount, paymentMethod);
         User user = userService.findById(userId);
         session.setAttribute("user", user);
         return "redirect:/home";
@@ -224,6 +225,12 @@ public class WebController {
             model.addAttribute("merchantStats", statisticsService.getMerchantStats(canteenId));
             model.addAttribute("myCanteen", canteenService.findById(canteenId));
             model.addAttribute("today", LocalDate.now());
+
+            // Calculate withdrawable amount
+            com.example.canteendemo.entity.Canteen canteen = canteenService.findById(canteenId);
+            java.math.BigDecimal totalRevenue = (java.math.BigDecimal) statisticsService.getMerchantStats(canteenId).get("totalRevenue");
+            java.math.BigDecimal withdrawable = totalRevenue.subtract(canteen.getTotalWithdrawn());
+            model.addAttribute("withdrawable", withdrawable);
         }
         model.addAttribute("canteens", canteenService.findAll());
         return "merchant";

@@ -18,6 +18,15 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
 
     List<Menu> findByCanteenIdAndDateAndMealTypeAndStatus(Long canteenId, LocalDate date, String mealType, String status);
 
+    // Persistent listing — filter by status only (no date)
+    List<Menu> findByStatus(String status);
+
+    List<Menu> findByMealTypeAndStatus(String mealType, String status);
+
+    List<Menu> findByCanteenIdAndStatus(Long canteenId, String status);
+
+    List<Menu> findByCanteenIdAndMealTypeAndStatus(Long canteenId, String mealType, String status);
+
     List<Menu> findByCanteenIdOrderByDateDesc(Long canteenId);
 
     List<Menu> findAllByOrderByDateDesc();

@@ -5,9 +5,6 @@ import com.example.canteendemo.entity.Menu;
 import com.example.canteendemo.entity.User;
 import com.example.canteendemo.repository.CanteenRepository;
 import com.example.canteendemo.repository.MenuRepository;
-import com.example.canteendemo.repository.OrderRepository;
-import com.example.canteendemo.repository.PaymentRepository;
-import com.example.canteendemo.repository.ReviewRepository;
 import com.example.canteendemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -15,7 +12,10 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -24,15 +24,10 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final MenuRepository menuRepository;
     private final CanteenRepository canteenRepository;
-    private final OrderRepository orderRepository;
-    private final PaymentRepository paymentRepository;
-    private final ReviewRepository reviewRepository;
 
     @Override
     public void run(String... args) {
-        reviewRepository.deleteAll();
-        paymentRepository.deleteAll();
-        orderRepository.deleteAll();
+        // Records are preserved permanently — no daily clearing
 
         // Ensure seed users always exist
         ensureUser("admin", "123456", "管理员", "ADMIN", "13800000000", "行政部", new BigDecimal("500.00"), null);
@@ -50,12 +45,29 @@ public class DataInitializer implements CommandLineRunner {
             );
         }
 
-        // Always ensure today's menu exists
-        LocalDate today = LocalDate.now();
-        List<Menu> todayMenus = menuRepository.findByDate(today);
-        if (!todayMenus.isEmpty()) {
+        // Deduplicate menus from old daily-seed system (same name + canteen + mealType)
+        List<Menu> allMenus = menuRepository.findAll();
+        Map<String, List<Menu>> groups = new HashMap<>();
+        for (Menu m : allMenus) {
+            String key = m.getName() + "|" + (m.getCanteen() != null ? m.getCanteen().getId() : "0") + "|" + m.getMealType();
+            groups.computeIfAbsent(key, k -> new ArrayList<>()).add(m);
+        }
+        for (List<Menu> group : groups.values()) {
+            if (group.size() > 1) {
+                // Keep the newest one, delete the rest
+                group.sort((a, b) -> b.getDate().compareTo(a.getDate()));
+                for (int i = 1; i < group.size(); i++) {
+                    menuRepository.delete(group.get(i));
+                }
+            }
+        }
+
+        // Only seed menus if none exist yet (menus persist across days)
+        if (menuRepository.count() > 0) {
             return;
         }
+
+        LocalDate today = LocalDate.now();
 
         Canteen c1 = canteens.get(0);
         Canteen c2 = canteens.get(1);

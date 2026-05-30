@@ -24,8 +24,8 @@
         <button class="btn-recharge btn-press" onclick="showRechargeModal()">充值</button>
     </div>
     <nav class="app-nav">
+        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" class="nav-btn-merchant">商家后台</a>
         <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.2);">管理后台</a>
-        <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" style="background:rgba(255,255,255,0.2);">商家后台</a>
         <a th:href="@{/home}" class="active">今日菜单</a>
         <a th:href="@{/my-orders}">我的订单</a>
         <a th:href="@{/my-reviews}">我的评价</a>
@@ -75,15 +75,22 @@
 
 <!-- Recharge Modal -->
 <div id="rechargeModal" class="modal-overlay" style="display:none;">
-    <div class="modal-card">
+    <div class="modal-card" style="width:440px;">
         <h3>账户充值</h3>
         <p class="text-muted mb-4" style="font-size:var(--text-sm);">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
         <div class="form-group">
             <label class="form-label">充值金额</label>
-            <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01">
+            <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01" placeholder="请输入充值金额">
+        </div>
+        <div class="form-group">
+            <label class="form-label">选择支付方式并充值</label>
+            <div class="payment-methods">
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">微信充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">支付宝充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">银行卡充值</button>
+            </div>
         </div>
         <div class="btn-row">
-            <button id="rechargeSubmitBtn" onclick="submitRecharge()" class="btn btn-success btn-ripple btn-press">确认充值</button>
             <button onclick="closeRechargeModal()" class="btn btn-ghost">取消</button>
         </div>
     </div>
@@ -137,20 +144,21 @@ function closeRechargeModal() {
     setTimeout(function() { modal.style.display = 'none'; }, 250);
 }
 
-function submitRecharge() {
+function submitRecharge(el) {
     var amount = document.getElementById('rechargeAmount').value;
     if (!amount || parseFloat(amount) <= 0) {
         Toast.show('请输入有效的充值金额', 'error');
         return;
     }
     var userId = [[${user.id}]];
+    var method = el.getAttribute('data-method');
     asyncSubmit(
         fetch('/api/user/charge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId.toString(), amount: amount })
+            body: JSON.stringify({ userId: userId.toString(), amount: amount, paymentMethod: method })
         }),
-        { submitBtn: '#rechargeSubmitBtn', successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '充值中...', reload: true }
+        { submitBtn: el, successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '支付中...', reload: true }
     );
 }
 

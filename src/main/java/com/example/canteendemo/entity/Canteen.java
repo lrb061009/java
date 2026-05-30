@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "canteen")
 @Data
@@ -20,4 +22,8 @@ public class Canteen {
 
     @Column(nullable = false, length = 100)
     private String name;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    @Builder.Default
+    private BigDecimal totalWithdrawn = BigDecimal.ZERO;
 }
