@@ -46,6 +46,7 @@
         <button class="tab-btn" onclick="switchTab('payments')">支付记录</button>
         <button class="tab-btn" onclick="switchTab('users')">用户管理</button>
         <button class="tab-btn" onclick="switchTab('reviews')">评价审核</button>
+        <button class="tab-btn" onclick="switchTab('recharges')">充值记录</button>
         <button class="tab-btn" onclick="switchTab('canteens')">食堂管理</button>
     </div>
 
@@ -191,6 +192,34 @@
                         <button th:if="${review.checkStatus == 'PENDING'}" class="btn btn-success btn-sm btn-ripple btn-press" th:data-id="${review.id}" onclick="approveReview(this.dataset.id)">通过</button>
                         <button th:if="${review.checkStatus == 'PENDING'}" class="btn btn-danger btn-sm btn-ripple btn-press" th:data-id="${review.id}" onclick="rejectReview(this.dataset.id)">驳回</button>
                     </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recharges Tab -->
+    <div id="tab-recharges" class="tab-panel">
+        <div class="section-header">
+            <span style="font-weight:700;">充值记录</span>
+            <span class="text-muted" style="font-size:var(--text-xs);">所有用户的余额充值流水，用于财务对账</span>
+        </div>
+        <div th:if="${#lists.isEmpty(rechargeRecords)}" class="empty-state"><p class="empty-text">暂无充值记录</p></div>
+        <div style="overflow-x:auto;" th:if="${!#lists.isEmpty(rechargeRecords)}">
+            <table class="data-table">
+                <thead>
+                <tr><th>ID</th><th>用户</th><th>充值金额</th><th>支付方式</th><th>充值时间</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="record : ${rechargeRecords}">
+                    <td th:text="${record.id}">1</td>
+                    <td th:text="${record.user.realName}">用户</td>
+                    <td>¥<span th:text="${record.amount}">0.00</span></td>
+                    <td>
+                        <span class="badge" th:classappend="${record.paymentMethod == 'WECHAT'} ? 'badge-success' : (${record.paymentMethod == 'ALIPAY'} ? 'badge-info' : 'badge-purple')"
+                              th:text="${record.paymentMethod == 'WECHAT'} ? '微信支付' : (${record.paymentMethod == 'ALIPAY'} ? '支付宝' : '银行卡')"></span>
+                    </td>
+                    <td th:text="${#temporals.format(record.rechargeTime, 'MM-dd HH:mm')}">-</td>
                 </tr>
                 </tbody>
             </table>

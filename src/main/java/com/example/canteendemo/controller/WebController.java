@@ -3,6 +3,7 @@ package com.example.canteendemo.controller;
 import com.example.canteendemo.entity.Order;
 import com.example.canteendemo.entity.User;
 import com.example.canteendemo.repository.PaymentRepository;
+import com.example.canteendemo.repository.RechargeRecordRepository;
 import com.example.canteendemo.service.*;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class WebController {
     private final CanteenService canteenService;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
+    private final RechargeRecordRepository rechargeRecordRepository;
     private final StatisticsService statisticsService;
 
     @GetMapping("/")
@@ -197,6 +199,7 @@ public class WebController {
         model.addAttribute("reviews", reviewService.getAllReviews());
         model.addAttribute("pendingReviews", reviewService.getPendingReviews());
         model.addAttribute("canteens", canteenService.findAll());
+        model.addAttribute("rechargeRecords", rechargeRecordRepository.findAllByOrderByRechargeTimeDesc());
         return "admin";
     }
 

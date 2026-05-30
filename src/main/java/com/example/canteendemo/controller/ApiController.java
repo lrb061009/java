@@ -1,6 +1,7 @@
 package com.example.canteendemo.controller;
 
 import com.example.canteendemo.entity.*;
+import com.example.canteendemo.repository.RechargeRecordRepository;
 import com.example.canteendemo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,6 +26,7 @@ public class ApiController {
     private final CanteenService canteenService;
     private final PaymentService paymentService;
     private final StatisticsService statisticsService;
+    private final RechargeRecordRepository rechargeRecordRepository;
 
     // ==================== 用户相关 ====================
 
@@ -514,6 +516,11 @@ public class ApiController {
     @GetMapping("/admin/reviews/pending")
     public ResponseEntity<?> getPendingReviews() {
         return ResponseEntity.ok(reviewService.getPendingReviews());
+    }
+
+    @GetMapping("/admin/recharges")
+    public ResponseEntity<?> getAllRecharges() {
+        return ResponseEntity.ok(rechargeRecordRepository.findAllByOrderByRechargeTimeDesc());
     }
 
     @PutMapping("/order/{id}/status")
