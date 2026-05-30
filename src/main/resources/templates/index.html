@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>食堂订餐系统</title>
+    <title>食堂订餐系统 — 首页</title>
+    <meta name="description" content="校园食堂在线订餐系统，今日菜单、在线下单、订单跟踪">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
-        html { background: #292524; }
+        html { background: #1c1917; }
         body { opacity: 0; transition: opacity 0.3s ease-out; }
         body.page-ready { opacity: 1; }
     </style>
@@ -18,31 +22,31 @@
     </script>
 </head>
 <body>
-<div class="hero">
-    <div class="hero-card reveal">
-        <div class="hero-icon">🍽️</div>
+<main class="hero" role="main" aria-label="欢迎页面">
+    <div class="hero-card reveal" role="banner">
+        <div class="hero-icon" aria-hidden="true">🍽️</div>
         <h1>食堂订餐</h1>
-        <p class="hero-subtitle">今日菜单、在线下单、订单跟踪，一站式校园订餐服务</p>
+        <p class="hero-subtitle">今日菜单、在线下单、订单跟踪<br>一站式校园订餐服务</p>
         <div class="hero-actions">
-            <a th:href="@{/login}" class="btn btn-primary btn-lg btn-ripple btn-press">登录使用</a>
-            <a th:href="@{/register}" class="btn btn-outline btn-lg btn-ripple btn-press">注册账号</a>
+            <a th:href="@{/login}" class="btn btn-primary btn-lg btn-ripple btn-press" role="button">登录使用</a>
+            <a th:href="@{/register}" class="btn btn-outline btn-lg btn-ripple btn-press" role="button">注册账号</a>
         </div>
-        <div class="hero-features">
+        <div class="hero-features" aria-label="功能概览">
             <div class="hero-feature">
-                <div class="feature-icon">📋</div>
+                <div class="feature-icon" aria-hidden="true">📋</div>
                 <div class="feature-label">浏览菜单</div>
             </div>
             <div class="hero-feature">
-                <div class="feature-icon">🛒</div>
+                <div class="feature-icon" aria-hidden="true">🛒</div>
                 <div class="feature-label">在线订餐</div>
             </div>
             <div class="hero-feature">
-                <div class="feature-icon">⭐</div>
+                <div class="feature-icon" aria-hidden="true">⭐</div>
                 <div class="feature-label">美食评价</div>
             </div>
         </div>
     </div>
-</div>
+</main>
 <script src="/js/interactions.js" defer></script>
 </body>
 </html>

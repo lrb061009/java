@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商家后台 - 食堂订餐系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
@@ -16,7 +19,7 @@
     </script>
 </head>
 <body>
-<div class="app-header merchant-header">
+<header class="app-header merchant-header" role="banner">
     <span class="app-header-brand">🏪 商家后台</span>
     <div class="app-header-right">
         <span class="user-greeting">
@@ -24,12 +27,12 @@
             <span th:if="${myCanteen != null}" th:text="' | ' + ${myCanteen.name}"></span>
         </span>
     </div>
-    <nav class="app-nav">
-        <a th:href="@{/merchant}" class="active">商家后台</a>
+    <nav class="app-nav" role="navigation" aria-label="商家导航">
+        <a th:href="@{/merchant}" class="active" aria-current="page">商家后台</a>
         <a th:href="@{/home}">用户首页</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
-</div>
+</header>
 
 <div class="content-wide">
     <!-- Banner -->

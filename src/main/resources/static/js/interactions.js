@@ -1,5 +1,5 @@
 /**
- * Interaction Design System
+ * Interaction Design System v2
  * Skeleton, Ripple, Scroll Reveal, Page Transitions, Toasts, Form Feedback
  */
 (function () {
@@ -11,7 +11,7 @@
   var SkeletonManager = {
     show: function (container, options) {
       options = options || {};
-      var type = options.type || 'auto';
+      var type = options.type || 'card';
       var count = options.count || 1;
 
       if (typeof container === 'string') {
@@ -22,6 +22,7 @@
       if (!container._skeletonOriginal) {
         container._skeletonOriginal = container.innerHTML;
       }
+      container.setAttribute('aria-busy', 'true');
       container.classList.add('skeleton-loading');
 
       var html = '';
@@ -37,6 +38,7 @@
       }
       if (!container || !container._skeletonOriginal) return;
 
+      container.removeAttribute('aria-busy');
       container.classList.remove('skeleton-loading');
       container.innerHTML = container._skeletonOriginal;
       delete container._skeletonOriginal;
@@ -55,8 +57,12 @@
           return '<div class="skeleton skeleton-stat"></div>';
         case 'title-text':
           return '<div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text"></div>';
-        case 'card-list':
-          return '<div class="skeleton skeleton-card" style="margin-bottom:16px;"></div><div class="skeleton skeleton-card" style="margin-bottom:16px;"></div><div class="skeleton skeleton-card"></div>';
+        case 'menu-cards':
+          var h = '';
+          for (var i = 0; i < 3; i++) {
+            h += '<div class="skeleton skeleton-card" style="height:280px;margin-bottom:16px;"></div>';
+          }
+          return h;
         default:
           return '<div class="skeleton skeleton-card"></div>';
       }
@@ -67,13 +73,13 @@
      Button Ripple
      ========================================================== */
   function initRipple() {
-    document.addEventListener('click', function (e) {
+    document.addEventListener('pointerdown', function (e) {
       var btn = e.target.closest('.btn-ripple');
       if (!btn) return;
 
       var ripple = document.createElement('span');
       var rect = btn.getBoundingClientRect();
-      var size = Math.max(rect.width, rect.height) * 2;
+      var size = Math.max(rect.width, rect.height) * 2.5;
 
       ripple.className = 'ripple-effect';
       ripple.style.width = size + 'px';
@@ -102,11 +108,12 @@
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
+            self.observer.unobserve(entry.target);
           }
         });
       }, {
         threshold: 0.08,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -30px 0px'
       });
 
       this._observeAll();
@@ -114,7 +121,8 @@
 
     _observeAll: function () {
       var self = this;
-      document.querySelectorAll('.reveal').forEach(function (el) {
+      var els = document.querySelectorAll('.reveal, .reveal-stagger');
+      els.forEach(function (el) {
         self.observer.observe(el);
       });
     },
@@ -131,9 +139,9 @@
   function initPageTransitions() {
     var overlay = document.createElement('div');
     overlay.className = 'page-transition-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
     document.body.appendChild(overlay);
 
-    // Intercept internal link clicks for smooth exit
     document.addEventListener('click', function (e) {
       var link = e.target.closest('a[href]');
       if (!link) return;
@@ -149,11 +157,8 @@
       if (link.hasAttribute('download')) return;
       if (link.hasAttribute('data-no-transition')) return;
       if (e.ctrlKey || e.metaKey) return;
-
-      // Skip API calls
       if (/\/api\//.test(href)) return;
 
-      // Skip external links
       if (/^https?:\/\//.test(href)) {
         try {
           var u = new URL(href);
@@ -162,8 +167,6 @@
       }
 
       e.preventDefault();
-
-      // Fade out
       overlay.classList.add('active');
 
       setTimeout(function () {
@@ -171,7 +174,6 @@
       }, 280);
     });
 
-    // Cleanup overlay on back/forward
     window.addEventListener('pageshow', function (e) {
       if (e.persisted) {
         overlay.classList.remove('active');
@@ -189,6 +191,8 @@
       if (this._container) return;
       this._container = document.createElement('div');
       this._container.className = 'toast-container';
+      this._container.setAttribute('role', 'status');
+      this._container.setAttribute('aria-live', 'polite');
       document.body.appendChild(this._container);
     },
 
@@ -198,9 +202,16 @@
 
       this._ensureContainer();
 
-      var icons = { success: '✓', error: '✕', loading: '' };
+      var icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ',
+        loading: ''
+      };
       var toast = document.createElement('div');
       toast.className = 'toast toast-' + type;
+      toast.setAttribute('role', 'alert');
       toast.innerHTML =
         '<span class="toast-icon">' + (icons[type] || icons.success) + '</span>' +
         '<span class="toast-message">' + escapeHtml(message) + '</span>';
@@ -220,7 +231,6 @@
     dismiss: function (toast) {
       if (!toast) return;
       toast.classList.add('removing');
-      var self = this;
       toast.addEventListener('animationend', function () {
         if (toast.parentNode) toast.parentNode.removeChild(toast);
       });
@@ -234,7 +244,7 @@
   }
 
   /* ==========================================================
-     asyncSubmit — wrap fetch with loading/success/failure UI
+     asyncSubmit — fetch with loading/success/failure UI
      ========================================================== */
   window.asyncSubmit = function (fetchPromise, options) {
     options = options || {};
@@ -257,6 +267,7 @@
       originalHTML = btn.innerHTML;
       originalDisabled = btn.disabled;
       btn.classList.add('btn-loading');
+      btn.setAttribute('aria-busy', 'true');
       btn.innerHTML = '<span class="spinner"></span>' + loadingText;
       btn.disabled = true;
     }
@@ -280,6 +291,7 @@
 
         if (btn) {
           btn.classList.remove('btn-loading');
+          btn.removeAttribute('aria-busy');
           btn.classList.add('btn-success-state');
           btn.innerHTML = '✓ 成功';
         }
@@ -302,6 +314,7 @@
 
         if (btn) {
           btn.classList.remove('btn-loading');
+          btn.removeAttribute('aria-busy');
           btn.classList.add('btn-error-state');
           btn.innerHTML = '✕ 失败';
           setTimeout(function () {
@@ -316,6 +329,16 @@
   };
 
   /* ==========================================================
+     Confirm Dialog (accessible)
+     ========================================================== */
+  window.showConfirm = function (message, onConfirm) {
+    if (!message || !onConfirm) return;
+    if (window.confirm(message)) {
+      onConfirm();
+    }
+  };
+
+  /* ==========================================================
      Tab Switching with skeleton
      ========================================================== */
   function initTabs() {
@@ -327,25 +350,24 @@
       var container = tabBtn.closest('.tabs-container');
       if (!container) return;
 
-      // Update active tab button
       container.querySelectorAll('[data-tab]').forEach(function (b) {
         b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
       });
       tabBtn.classList.add('active');
+      tabBtn.setAttribute('aria-selected', 'true');
 
-      // Find target panel
       var panel = document.getElementById(tabId) || document.querySelector('[data-tab-panel="' + tabId + '"]');
       if (!panel) return;
 
-      // Hide all panels in this group
       var panelGroup = panel.parentElement;
       panelGroup.querySelectorAll('.tab-panel').forEach(function (p) {
-        if (p !== panel && p.style.display !== 'none') {
+        if (p !== panel) {
           p.style.display = 'none';
+          p.classList.remove('active');
         }
       });
 
-      // Show skeleton briefly, then reveal panel
       if (panel._skeletonOriginal === undefined) {
         panel._skeletonOriginal = panel.innerHTML;
       }
@@ -357,8 +379,27 @@
         panel.innerHTML = panel._skeletonOriginal;
         panel.classList.remove('switching');
         panel.style.display = 'block';
+        panel.classList.add('active');
         ScrollReveal.refresh();
       }, 250);
+    });
+  }
+
+  /* ==========================================================
+     Keyboard Navigation: close modals with Escape
+     ========================================================== */
+  function initKeyboard() {
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var visibleModals = document.querySelectorAll('.modal-overlay:not([style*="display:none"]):not(.modal-hidden)');
+        if (visibleModals.length > 0) {
+          var lastModal = visibleModals[visibleModals.length - 1];
+          lastModal.classList.add('modal-hidden');
+          setTimeout(function () {
+            lastModal.style.display = 'none';
+          }, 250);
+        }
+      }
     });
   }
 
@@ -370,6 +411,7 @@
     ScrollReveal.init();
     initPageTransitions();
     initTabs();
+    initKeyboard();
   }
 
   if (document.readyState === 'loading') {
@@ -378,7 +420,6 @@
     init();
   }
 
-  /* Expose to global scope */
   window.SkeletonManager = SkeletonManager;
   window.Toast = Toast;
   window.ScrollReveal = ScrollReveal;

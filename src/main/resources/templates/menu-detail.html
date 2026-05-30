@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${menu.name} + ' - 菜品详情'">菜品详情</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
@@ -16,44 +19,43 @@
     </script>
 </head>
 <body>
-<div class="app-header">
-    <span class="app-header-brand">🍽️ 食堂订餐</span>
+<header class="app-header" role="banner">
+    <span class="app-header-brand" aria-label="食堂订餐">🍽️ 食堂订餐</span>
     <div class="app-header-right">
         <span class="user-greeting">欢迎，<span th:text="${user.realName}">用户</span></span>
-        <span class="user-balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
-        <button class="btn-recharge btn-press" onclick="showRechargeModal()">充值</button>
+        <span class="user-balance" aria-live="polite">余额：¥<span th:text="${user.balance}">0.00</span></span>
+        <button class="btn-recharge btn-press" onclick="showRechargeModal()" aria-label="打开充值窗口">充值</button>
     </div>
-    <nav class="app-nav">
+    <nav class="app-nav" role="navigation" aria-label="主导航">
         <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" class="nav-btn-merchant">商家后台</a>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.2);">管理后台</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.15);font-weight:600;">管理后台</a>
         <a th:href="@{/home}">今日菜单</a>
         <a th:href="@{/my-orders}">我的订单</a>
         <a th:href="@{/my-reviews}">我的评价</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
-</div>
+</header>
 
-<div class="content" style="max-width:800px;">
-    <!-- Detail Card -->
-    <div class="detail-card reveal">
+<main class="content" style="max-width:800px;" role="main" aria-label="菜品详情">
+    <article class="detail-card reveal" aria-labelledby="detailName">
         <div class="detail-header">
             <span class="meal-tag"
                   th:classappend="${menu.mealType == 'BREAKFAST'} ? 'meal-tag-breakfast' : (${menu.mealType == 'LUNCH'} ? 'meal-tag-lunch' : 'meal-tag-dinner')"
                   th:text="${menu.mealType == 'BREAKFAST'} ? '早餐' : (${menu.mealType == 'LUNCH'} ? '午餐' : '晚餐')">餐别</span>
             <span class="badge badge-purple" th:if="${menu.canteen != null}" th:text="${menu.canteen.name}">食堂</span>
         </div>
-        <h2 th:text="${menu.name}">菜品名称</h2>
+        <h2 id="detailName" th:text="${menu.name}">菜品名称</h2>
         <p class="detail-price">¥<span th:text="${menu.price}">0.00</span></p>
-        <p class="detail-meta">库存：<span th:text="${menu.stock}">0</span> 份 &nbsp;|&nbsp; 日期：<span th:text="${menu.date}">2024-01-01</span></p>
+        <p class="detail-meta">库存：<span th:text="${menu.stock}">0</span> 份 &nbsp;|&nbsp; 日期：<span th:text="${menu.date}">2026-05-30</span></p>
         <p class="detail-desc" th:text="${menu.description}">菜品描述</p>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
             <a th:href="@{/home}" class="btn btn-ghost btn-press">← 返回菜单</a>
-            <button class="btn btn-primary btn-ripple btn-press" onclick="orderNow()">立即下单</button>
+            <button class="btn btn-primary btn-ripple btn-press" onclick="orderNow()"
+                    th:attr="aria-label='立即下单 ' + ${menu.name}">立即下单</button>
         </div>
-    </div>
+    </article>
 
-    <!-- Average Rating -->
-    <div class="avg-rating-box reveal">
+    <div class="avg-rating-box reveal" aria-label="综合评分">
         <div class="rating-score" th:text="${avgRating}">0.0</div>
         <div class="rating-info">
             <div style="font-size:var(--text-lg); color:var(--color-text); font-weight:600;">综合评分</div>
@@ -61,42 +63,43 @@
         </div>
     </div>
 
-    <!-- Reviews -->
-    <div class="section-title">用户评价</div>
+    <div class="section-title" id="reviews-heading">用户评价</div>
 
-    <div th:if="${#lists.isEmpty(reviews)}" class="empty-state">
+    <div th:if="${#lists.isEmpty(reviews)}" class="empty-state" role="status">
         <p class="empty-text">暂无评价，成为第一个评价的人吧</p>
     </div>
 
-    <div class="review-list reveal-stagger" th:if="${!#lists.isEmpty(reviews)}">
-        <div class="review-card reveal" th:each="review : ${reviews}">
+    <div class="review-list reveal-stagger" th:if="${!#lists.isEmpty(reviews)}" role="list" aria-labelledby="reviews-heading">
+        <article class="review-card reveal" th:each="review : ${reviews}" role="listitem">
             <div class="review-item-name" th:text="${review.user.realName}">用户</div>
-            <div class="stars">
+            <div class="stars" th:attr="aria-label='评分 ' + ${review.rating} + ' 星'">
                 <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                    <span th:text="${i <= review.rating} ? '★' : '☆'" th:class="${i > review.rating} ? 'star-empty'">★</span>
+                    <span th:text="${i <= review.rating} ? '★' : '☆'"
+                          th:class="${i > review.rating} ? 'star-empty'"
+                          aria-hidden="true">★</span>
                 </th:block>
             </div>
             <div class="review-comment" th:text="${review.comment}">评价内容</div>
             <div class="review-time" th:text="${#temporals.format(review.createTime, 'yyyy-MM-dd HH:mm')}">时间</div>
-        </div>
+        </article>
     </div>
-</div>
+</main>
 
 <!-- Recharge Modal -->
-<div id="rechargeModal" class="modal-overlay" style="display:none;">
+<div id="rechargeModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="账户充值">
     <div class="modal-card" style="width:440px;">
         <h3>账户充值</h3>
         <p class="text-muted mb-4" style="font-size:var(--text-sm);">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
         <div class="form-group">
-            <label class="form-label">充值金额</label>
+            <label class="form-label" for="rechargeAmount">充值金额</label>
             <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01" placeholder="请输入充值金额">
         </div>
         <div class="form-group">
-            <label class="form-label">选择支付方式并充值</label>
+            <label class="form-label">选择支付方式</label>
             <div class="payment-methods">
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">微信充值</button>
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">支付宝充值</button>
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">银行卡充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">💳 微信充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">📱 支付宝充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">🏦 银行卡充值</button>
             </div>
         </div>
         <div class="btn-row">
@@ -106,16 +109,16 @@
 </div>
 
 <!-- Order Modal -->
-<div id="orderModal" class="modal-overlay" style="display:none;">
+<div id="orderModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="下单窗口">
     <div class="modal-card">
         <h3>下单 - <span th:text="${menu.name}"></span></h3>
         <div class="form-group">
-            <label class="form-label">数量</label>
+            <label class="form-label" for="orderQuantity">数量</label>
             <input class="form-input" type="number" id="orderQuantity" value="1" min="1">
         </div>
         <div class="form-group">
-            <label class="form-label">备注</label>
-            <input class="form-input" type="text" id="orderRemark" placeholder="可选">
+            <label class="form-label" for="orderRemark">备注</label>
+            <input class="form-input" type="text" id="orderRemark" placeholder="选填，如：少放辣">
         </div>
         <div class="btn-row">
             <button id="orderSubmitBtn" onclick="submitOrder()" class="btn btn-primary btn-ripple btn-press">确认下单</button>
@@ -123,6 +126,11 @@
         </div>
     </div>
 </div>
+
+<script id="page-data">
+var g_menuId = [[${menu.id}]];
+var g_userId = [[${user.id}]];
+</script>
 
 <script>
 function showRechargeModal() {
@@ -141,13 +149,12 @@ function submitRecharge(el) {
         Toast.show('请输入有效的充值金额', 'error');
         return;
     }
-    var userId = [[${user.id}]];
     var method = el.getAttribute('data-method');
     asyncSubmit(
         fetch('/api/user/charge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId.toString(), amount: amount, paymentMethod: method })
+            body: JSON.stringify({ userId: g_userId.toString(), amount: amount, paymentMethod: method })
         }),
         { submitBtn: el, successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '支付中...', reload: true }
     );
@@ -156,6 +163,7 @@ function orderNow() {
     var modal = document.getElementById('orderModal');
     modal.style.display = 'flex';
     modal.classList.remove('modal-hidden');
+    document.getElementById('orderQuantity').focus();
 }
 function closeModal() {
     var modal = document.getElementById('orderModal');
@@ -165,12 +173,11 @@ function closeModal() {
 function submitOrder() {
     var qty = parseInt(document.getElementById('orderQuantity').value);
     var remark = document.getElementById('orderRemark').value;
-    var userId = [[${user.id}]];
     asyncSubmit(
         fetch('/api/order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId, items: [{ menuId: [[${menu.id}]], quantity: qty }], remark: remark })
+            body: JSON.stringify({ userId: g_userId, items: [{ menuId: g_menuId, quantity: qty }], remark: remark })
         }),
         { submitBtn: '#orderSubmitBtn', successMsg: '下单成功！', errorMsg: '下单失败', loadingText: '下单中...', reload: true }
     );

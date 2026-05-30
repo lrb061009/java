@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的评价 - 食堂订餐系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
@@ -16,68 +19,70 @@
     </script>
 </head>
 <body>
-<div class="app-header">
-    <span class="app-header-brand">🍽️ 食堂订餐</span>
+<header class="app-header" role="banner">
+    <span class="app-header-brand" aria-label="食堂订餐">🍽️ 食堂订餐</span>
     <div class="app-header-right">
         <span class="user-greeting">欢迎，<span th:text="${user.realName}">用户</span></span>
-        <span class="user-balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
-        <button class="btn-recharge btn-press" onclick="showRechargeModal()">充值</button>
+        <span class="user-balance" aria-live="polite">余额：¥<span th:text="${user.balance}">0.00</span></span>
+        <button class="btn-recharge btn-press" onclick="showRechargeModal()" aria-label="打开充值窗口">充值</button>
     </div>
-    <nav class="app-nav">
+    <nav class="app-nav" role="navigation" aria-label="主导航">
         <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" class="nav-btn-merchant">商家后台</a>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.2);">管理后台</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.15);font-weight:600;">管理后台</a>
         <a th:href="@{/home}">今日菜单</a>
         <a th:href="@{/my-orders}">我的订单</a>
-        <a th:href="@{/my-reviews}" class="active">我的评价</a>
+        <a th:href="@{/my-reviews}" class="active" aria-current="page">我的评价</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
-</div>
+</header>
 
-<div class="content" style="max-width:800px;">
+<main class="content" style="max-width:800px;" role="main" aria-label="我的评价">
     <div class="section-header mb-4">
-        <h3 style="font-size:var(--text-lg); color:var(--color-text);">我的评价</h3>
+        <h3 style="font-size:var(--text-xl); color:var(--color-text); font-weight:700;">我的评价</h3>
     </div>
 
-    <div th:if="${#lists.isEmpty(reviews)}" class="empty-state">
-        <div class="empty-icon">⭐</div>
+    <div th:if="${#lists.isEmpty(reviews)}" class="empty-state" role="status">
+        <div class="empty-icon" aria-hidden="true">⭐</div>
         <p class="empty-text">暂无评价</p>
         <a th:href="@{/home}" class="btn btn-outline btn-ripple btn-press">去看看菜单</a>
     </div>
 
-    <div class="review-list reveal-stagger" th:if="${!#lists.isEmpty(reviews)}">
-        <div class="review-card reveal" th:each="review : ${reviews}">
+    <div class="review-list reveal-stagger" th:if="${!#lists.isEmpty(reviews)}" role="list" aria-label="评价列表">
+        <article class="review-card reveal" th:each="review : ${reviews}" role="listitem">
             <div class="review-header">
                 <span class="review-item-name" th:text="${review.menu.name}">菜品名称</span>
                 <span class="badge"
                       th:classappend="${review.checkStatus == 'PENDING'} ? 'badge-warn' : (${review.checkStatus == 'APPROVED'} ? 'badge-success' : 'badge-danger')"
                       th:text="${review.checkStatus == 'PENDING'} ? '待审核' : (${review.checkStatus == 'APPROVED'} ? '已通过' : '已驳回')">审核状态</span>
             </div>
-            <div class="stars">
+            <div class="stars" th:attr="aria-label='评分 ' + ${review.rating} + ' 星'">
                 <th:block th:each="i : ${#numbers.sequence(1, 5)}">
-                    <span th:text="${i <= review.rating} ? '★' : '☆'" th:class="${i > review.rating} ? 'star-empty'">★</span>
+                    <span th:text="${i <= review.rating} ? '★' : '☆'"
+                          th:class="${i > review.rating} ? 'star-empty'"
+                          aria-hidden="true">★</span>
                 </th:block>
             </div>
             <div class="review-comment" th:text="${review.comment}">评价内容</div>
             <div class="review-time" th:text="${#temporals.format(review.createTime, 'yyyy-MM-dd HH:mm')}">时间</div>
-        </div>
+        </article>
     </div>
-</div>
+</main>
 
 <!-- Recharge Modal -->
-<div id="rechargeModal" class="modal-overlay" style="display:none;">
+<div id="rechargeModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="账户充值">
     <div class="modal-card" style="width:440px;">
         <h3>账户充值</h3>
         <p class="text-muted mb-4" style="font-size:var(--text-sm);">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
         <div class="form-group">
-            <label class="form-label">充值金额</label>
+            <label class="form-label" for="rechargeAmount">充值金额</label>
             <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01" placeholder="请输入充值金额">
         </div>
         <div class="form-group">
-            <label class="form-label">选择支付方式并充值</label>
+            <label class="form-label">选择支付方式</label>
             <div class="payment-methods">
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">微信充值</button>
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">支付宝充值</button>
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">银行卡充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">💳 微信充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">📱 支付宝充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">🏦 银行卡充值</button>
             </div>
         </div>
         <div class="btn-row">
@@ -85,6 +90,10 @@
         </div>
     </div>
 </div>
+
+<script id="page-data">
+var g_userId = [[${user.id}]];
+</script>
 
 <script>
 function showRechargeModal() {
@@ -103,13 +112,12 @@ function submitRecharge(el) {
         Toast.show('请输入有效的充值金额', 'error');
         return;
     }
-    var userId = [[${user.id}]];
     var method = el.getAttribute('data-method');
     asyncSubmit(
         fetch('/api/user/charge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId.toString(), amount: amount, paymentMethod: method })
+            body: JSON.stringify({ userId: g_userId.toString(), amount: amount, paymentMethod: method })
         }),
         { submitBtn: el, successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '支付中...', reload: true }
     );

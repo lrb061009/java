@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的订单 - 食堂订餐系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
@@ -17,36 +20,36 @@
     </script>
 </head>
 <body>
-<div class="app-header">
-    <span class="app-header-brand">🍽️ 食堂订餐</span>
+<header class="app-header" role="banner">
+    <span class="app-header-brand" aria-label="食堂订餐">🍽️ 食堂订餐</span>
     <div class="app-header-right">
         <span class="user-greeting">欢迎，<span th:text="${user.realName}">用户</span></span>
-        <span class="user-balance">余额：¥<span th:text="${user.balance}">0.00</span></span>
-        <button class="btn-recharge btn-press" onclick="showRechargeModal()">充值</button>
+        <span class="user-balance" aria-live="polite">余额：¥<span th:text="${user.balance}">0.00</span></span>
+        <button class="btn-recharge btn-press" onclick="showRechargeModal()" aria-label="打开充值窗口">充值</button>
     </div>
-    <nav class="app-nav">
+    <nav class="app-nav" role="navigation" aria-label="主导航">
         <a th:if="${user.role == 'MERCHANT'}" th:href="@{/merchant}" class="nav-btn-merchant">商家后台</a>
-        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.2);">管理后台</a>
+        <a th:if="${user.role == 'ADMIN'}" th:href="@{/admin}" style="background:rgba(255,255,255,0.15);font-weight:600;">管理后台</a>
         <a th:href="@{/home}">今日菜单</a>
-        <a th:href="@{/my-orders}" class="active">我的订单</a>
+        <a th:href="@{/my-orders}" class="active" aria-current="page">我的订单</a>
         <a th:href="@{/my-reviews}">我的评价</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
-</div>
+</header>
 
-<div class="content" style="max-width:900px;">
+<main class="content" style="max-width:900px;" role="main" aria-label="我的订单">
     <div class="section-header mb-4">
-        <h3 style="font-size:var(--text-lg); color:var(--color-text);">我的订单</h3>
+        <h3 style="font-size:var(--text-xl); color:var(--color-text); font-weight:700;">我的订单</h3>
     </div>
 
-    <div th:if="${#lists.isEmpty(orders)}" class="empty-state">
-        <div class="empty-icon">📦</div>
+    <div th:if="${#lists.isEmpty(orders)}" class="empty-state" role="status">
+        <div class="empty-icon" aria-hidden="true">📦</div>
         <p class="empty-text">暂无订单</p>
         <a th:href="@{/home}" class="btn btn-primary btn-ripple btn-press">去下单</a>
     </div>
 
-    <div class="order-list reveal-stagger" th:if="${!#lists.isEmpty(orders)}">
-        <div class="order-card reveal" th:each="order : ${orders}">
+    <div class="order-list reveal-stagger" th:if="${!#lists.isEmpty(orders)}" role="list" aria-label="订单列表">
+        <article class="order-card reveal" th:each="order : ${orders}" role="listitem">
             <div class="order-header">
                 <span class="order-id">订单 #<span th:text="${order.id}">1</span></span>
                 <span class="badge"
@@ -54,11 +57,11 @@
                       th:text="${order.status == 'PENDING'} ? '待处理' : (${order.status == 'CONFIRMED'} ? '已确认' : (${order.status == 'COMPLETED'} ? '已完成' : '已取消'))">状态</span>
             </div>
 
-            <div class="take-code" th:if="${order.takeCode != null}">
+            <div class="take-code" th:if="${order.takeCode != null}" aria-label="取餐码">
                 取餐码：<span th:text="${order.takeCode}">123456</span>
             </div>
 
-            <div class="order-detail-list">
+            <div class="order-detail-list" aria-label="订单明细">
                 <div class="order-detail-item" th:each="detail : ${order.orderDetails}">
                     <span th:text="${detail.menu.name}">菜品名称</span>
                     <span style="color:var(--color-text-muted);">x<span th:text="${detail.quantity}">1</span></span>
@@ -74,10 +77,11 @@
             <div class="order-actions">
                 <span class="badge"
                       th:classappend="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? 'badge-success' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? 'badge-danger' : 'badge-warn')"
-                      th:text="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? '已支付' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? '已退款' : '未支付')">已支付</span>
+                      th:text="${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'PAID'} ? '已支付' : (${paymentStatusMap.getOrDefault(order.id, 'UNPAID') == 'REFUNDED'} ? '已退款' : '未支付')">支付状态</span>
 
                 <button th:if="${order.status == 'PENDING'}" class="btn btn-danger btn-sm btn-ripple btn-press"
-                        th:data-id="${order.id}" onclick="cancelOrder(this.dataset.id)">取消订单</button>
+                        th:data-id="${order.id}" onclick="cancelOrder(this.dataset.id)"
+                        th:attr="aria-label='取消订单 #' + ${order.id}">取消订单</button>
 
                 <th:block th:if="${order.status == 'CONFIRMED' || order.status == 'COMPLETED'}">
                     <th:block th:each="detail : ${order.orderDetails}">
@@ -92,25 +96,25 @@
                     </th:block>
                 </th:block>
             </div>
-        </div>
+        </article>
     </div>
-</div>
+</main>
 
 <!-- Recharge Modal -->
-<div id="rechargeModal" class="modal-overlay" style="display:none;">
+<div id="rechargeModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="账户充值">
     <div class="modal-card" style="width:440px;">
         <h3>账户充值</h3>
         <p class="text-muted mb-4" style="font-size:var(--text-sm);">当前余额：¥<span th:text="${user.balance}">0.00</span></p>
         <div class="form-group">
-            <label class="form-label">充值金额</label>
+            <label class="form-label" for="rechargeAmount">充值金额</label>
             <input class="form-input" type="number" id="rechargeAmount" value="100" min="1" step="0.01" placeholder="请输入充值金额">
         </div>
         <div class="form-group">
-            <label class="form-label">选择支付方式并充值</label>
+            <label class="form-label">选择支付方式</label>
             <div class="payment-methods">
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">微信充值</button>
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">支付宝充值</button>
-                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">银行卡充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="WECHAT">💳 微信充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="ALIPAY">📱 支付宝充值</button>
+                <button class="payment-option" onclick="submitRecharge(this)" data-method="BANK_CARD">🏦 银行卡充值</button>
             </div>
         </div>
         <div class="btn-row">
@@ -120,21 +124,21 @@
 </div>
 
 <!-- Review Modal -->
-<div id="reviewModal" class="modal-overlay" style="display:none;">
+<div id="reviewModal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="写评价">
     <div class="modal-card" style="width:440px;">
         <h3>评价 - <span id="reviewMenuName"></span></h3>
         <div class="form-group">
-            <label class="form-label">评分</label>
-            <div class="star-rating" id="starRating">
-                <span class="star" onclick="setRating(1)">★</span>
-                <span class="star" onclick="setRating(2)">★</span>
-                <span class="star" onclick="setRating(3)">★</span>
-                <span class="star" onclick="setRating(4)">★</span>
-                <span class="star" onclick="setRating(5)">★</span>
+            <label class="form-label" id="ratingLabel">评分</label>
+            <div class="star-rating" id="starRating" role="radiogroup" aria-labelledby="ratingLabel">
+                <span class="star" role="radio" aria-label="1星" tabindex="0" onclick="setRating(1)" onkeydown="handleStarKey(event,1)">★</span>
+                <span class="star" role="radio" aria-label="2星" tabindex="0" onclick="setRating(2)" onkeydown="handleStarKey(event,2)">★</span>
+                <span class="star" role="radio" aria-label="3星" tabindex="0" onclick="setRating(3)" onkeydown="handleStarKey(event,3)">★</span>
+                <span class="star" role="radio" aria-label="4星" tabindex="0" onclick="setRating(4)" onkeydown="handleStarKey(event,4)">★</span>
+                <span class="star" role="radio" aria-label="5星" tabindex="0" onclick="setRating(5)" onkeydown="handleStarKey(event,5)">★</span>
             </div>
         </div>
         <div class="form-group">
-            <label class="form-label">评价内容</label>
+            <label class="form-label" for="reviewComment">评价内容</label>
             <textarea class="form-input" id="reviewComment" rows="3" placeholder="分享你的用餐体验..."></textarea>
         </div>
         <div class="btn-row">
@@ -143,6 +147,10 @@
         </div>
     </div>
 </div>
+
+<script id="page-data">
+var g_userId = [[${user.id}]];
+</script>
 
 <script>
 function showRechargeModal() {
@@ -161,13 +169,12 @@ function submitRecharge(el) {
         Toast.show('请输入有效的充值金额', 'error');
         return;
     }
-    var userId = [[${user.id}]];
     var method = el.getAttribute('data-method');
     asyncSubmit(
         fetch('/api/user/charge', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId.toString(), amount: amount, paymentMethod: method })
+            body: JSON.stringify({ userId: g_userId.toString(), amount: amount, paymentMethod: method })
         }),
         { submitBtn: el, successMsg: '充值成功！', errorMsg: '充值失败', loadingText: '支付中...', reload: true }
     );
@@ -195,6 +202,7 @@ function showReviewModal(orderId, menuId, menuName) {
     currentRating = 0;
     updateStars();
     document.getElementById('reviewComment').value = '';
+    document.getElementById('reviewComment').focus();
 }
 
 function showReviewModalFromBtn(btn) {
@@ -212,29 +220,37 @@ function setRating(r) {
     updateStars();
 }
 
+function handleStarKey(e, r) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setRating(r);
+    }
+}
+
 function updateStars() {
     var stars = document.getElementById('starRating').querySelectorAll('.star');
     for (var i = 0; i < stars.length; i++) {
         if (i < currentRating) {
             stars[i].classList.add('active');
+            stars[i].setAttribute('aria-checked', 'true');
         } else {
             stars[i].classList.remove('active');
+            stars[i].setAttribute('aria-checked', 'false');
         }
     }
 }
 
 function submitReview() {
     if (currentRating === 0) {
-        Toast.show('请选择评分', 'error');
+        Toast.show('请选择评分', 'warning');
         return;
     }
     var comment = document.getElementById('reviewComment').value;
-    var userId = [[${user.id}]];
     asyncSubmit(
         fetch('/api/review', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId, menuId: currentMenuId, orderId: currentOrderId, rating: currentRating, comment: comment })
+            body: JSON.stringify({ userId: g_userId, menuId: currentMenuId, orderId: currentOrderId, rating: currentRating, comment: comment })
         }),
         { submitBtn: '#reviewSubmitBtn', successMsg: '评价成功！', errorMsg: '评价失败', loadingText: '提交中...', reload: true }
     );

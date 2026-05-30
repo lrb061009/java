@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - 食堂订餐系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
-        html { background: #292524; }
+        html { background: #1c1917; }
         body { opacity: 0; transition: opacity 0.3s ease-out; }
         body.page-ready { opacity: 1; }
     </style>
@@ -18,30 +21,34 @@
     </script>
 </head>
 <body>
-<div class="auth-page">
-    <div class="auth-card reveal" style="width:460px;">
+<main class="auth-page" role="main" aria-label="注册页面">
+    <div class="auth-card reveal" style="width:460px;" role="form" aria-label="注册表单">
         <h2>用户注册</h2>
-        <div th:if="${error}" class="auth-error" th:text="${error}"></div>
-        <form method="post" action="/register">
+        <div th:if="${error}" class="auth-error" role="alert" th:text="${error}"></div>
+        <form method="post" action="/register" novalidate>
             <div class="form-group">
-                <label class="form-label" for="username">用户名 *</label>
-                <input class="form-input" type="text" id="username" name="username" required placeholder="请输入用户名">
+                <label class="form-label" for="username">用户名 <span aria-hidden="true">*</span></label>
+                <input class="form-input" type="text" id="username" name="username"
+                       required placeholder="请输入用户名" autocomplete="username" autofocus>
             </div>
             <div class="form-group">
-                <label class="form-label" for="password">密码 *</label>
-                <input class="form-input" type="password" id="password" name="password" required placeholder="请输入密码">
+                <label class="form-label" for="password">密码 <span aria-hidden="true">*</span></label>
+                <input class="form-input" type="password" id="password" name="password"
+                       required placeholder="请输入密码" autocomplete="new-password">
             </div>
             <div class="form-group">
-                <label class="form-label" for="realName">真实姓名 *</label>
-                <input class="form-input" type="text" id="realName" name="realName" required placeholder="请输入真实姓名">
+                <label class="form-label" for="realName">真实姓名 <span aria-hidden="true">*</span></label>
+                <input class="form-input" type="text" id="realName" name="realName"
+                       required placeholder="请输入真实姓名" autocomplete="name">
             </div>
-            <div style="display:flex; gap:1rem;">
-                <div class="form-group" style="flex:1;">
+            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                <div class="form-group" style="flex:1; min-width:150px;">
                     <label class="form-label" for="phone">手机号</label>
-                    <input class="form-input" type="text" id="phone" name="phone" placeholder="选填">
+                    <input class="form-input" type="tel" id="phone" name="phone"
+                           placeholder="选填" autocomplete="tel">
                 </div>
-                <div class="form-group" style="flex:1;">
-                    <label class="form-label" for="role">角色/部门</label>
+                <div class="form-group" style="flex:1; min-width:150px;">
+                    <label class="form-label" for="role">角色</label>
                     <select class="form-input" id="role" name="role">
                         <option value="USER">用户</option>
                         <option value="MERCHANT">商家</option>
@@ -49,13 +56,18 @@
                     </select>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-ripple btn-press" style="width:100%; padding:0.75rem;">注 册</button>
+            <button type="submit" class="btn btn-primary btn-ripple btn-press" style="width:100%; padding:0.8rem;">
+                注 册
+            </button>
         </form>
         <div class="auth-footer">
             已有账号？<a th:href="@{/login}">立即登录</a>
         </div>
+        <div class="text-center mt-2">
+            <a th:href="@{/}" class="text-muted" style="font-size:var(--text-sm);">← 返回首页</a>
+        </div>
     </div>
-</div>
+</main>
 <script src="/js/interactions.js" defer></script>
 </body>
 </html>

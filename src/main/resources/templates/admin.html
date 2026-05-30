@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理后台 - 食堂订餐系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/interactions.css">
     <style>
@@ -16,16 +19,16 @@
     </script>
 </head>
 <body>
-<div class="app-header admin-header">
+<header class="app-header admin-header" role="banner">
     <span class="app-header-brand">⚙️ 管理后台</span>
     <div class="app-header-right">
         <span class="user-greeting">管理员：<span th:text="${user.realName}">管理员</span></span>
     </div>
-    <nav class="app-nav">
-        <a th:href="@{/admin}" class="active">仪表盘</a>
+    <nav class="app-nav" role="navigation" aria-label="管理导航">
+        <a th:href="@{/admin}" class="active" aria-current="page">仪表盘</a>
         <a th:href="@{/logout}">退出</a>
     </nav>
-</div>
+</header>
 
 <div class="content-wide">
     <!-- Stats -->
