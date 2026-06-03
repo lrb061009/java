@@ -422,8 +422,9 @@ public class ApiController {
     }
 
     @GetMapping("/merchant/stats")
-    public ResponseEntity<?> getMerchantStats(@RequestParam Long canteenId) {
-        return ResponseEntity.ok(statisticsService.getMerchantStats(canteenId));
+    public ResponseEntity<?> getMerchantStats(@RequestParam Long canteenId,
+                                              @RequestParam(defaultValue = "all") String period) {
+        return ResponseEntity.ok(statisticsService.getMerchantStatsByPeriod(canteenId, period));
     }
 
     @PostMapping("/merchant/verify")
